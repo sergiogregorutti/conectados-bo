@@ -33,20 +33,36 @@ npm run dev
 
 ```
 src/
-├── components/ui/     # Componentes shadcn
+├── components/
+│   ├── ads/
+│   │   └── AdForm.tsx      # Formulario crear/editar ad
+│   ├── layout/
+│   │   └── AppSidebar.tsx  # Sidebar con navegación
+│   └── ui/                 # Componentes shadcn
+├── hooks/
+│   └── useAds.ts           # React Query hooks para ads
 ├── lib/
-│   ├── auth.tsx       # AuthContext y useAuth
-│   ├── axios.ts       # Instancia axios con interceptors
-│   ├── queryClient.ts # React Query client
-│   ├── supabase.ts    # Cliente Supabase
-│   └── utils.ts       # cn() helper
+│   ├── auth.tsx            # AuthContext y useAuth
+│   ├── axios.ts            # Instancia axios con interceptors
+│   ├── queryClient.ts      # React Query client
+│   ├── supabase.ts         # Cliente Supabase
+│   └── utils.ts            # cn() helper
 ├── routes/
-│   ├── __root.tsx     # Root layout
-│   ├── index.tsx      # Login (/)
-│   └── dashboard.tsx  # Dashboard (/dashboard)
+│   ├── __root.tsx          # Root layout
+│   ├── index.tsx           # Login (/)
+│   ├── dashboard.tsx       # Dashboard layout con sidebar
+│   └── dashboard/
+│       ├── index.tsx       # Dashboard home (/dashboard)
+│       └── ads/
+│           ├── index.tsx   # Listado de ads
+│           ├── new.tsx     # Crear ad
+│           └── $adId.tsx   # Editar ad
+├── services/
+│   └── ads.ts              # Service con mocks (endpoints documentados)
 ├── types/
-│   └── auth.ts        # Tipos de autenticación
-└── main.tsx           # Entry point + providers
+│   ├── ad.ts               # Tipos de Ad
+│   └── auth.ts             # Tipos de autenticación
+└── main.tsx                # Entry point + providers
 ```
 
 ## Flujo de Autenticación
@@ -70,20 +86,23 @@ src/
 - [x] Axios con interceptors (auth + error handling)
 - [x] AuthContext con signIn/signOut
 - [x] Página de Login funcional
-- [x] Página de Dashboard con logout
 - [x] Rutas protegidas (redirect si no autenticado)
+- [x] Design system con colores de la marca (dark mode)
+- [x] Layout del dashboard con sidebar
+- [x] Navegación básica (Dashboard, Ads)
+- [x] CRUD de Ads (con mocks)
+  - [x] Listar ads (tabla con filtros)
+  - [x] Crear ad
+  - [x] Editar ad
+  - [x] Eliminar ad
+  - [x] Toggle activo/inactivo
+- [x] Endpoints documentados para API (ver `API_SPEC.md`)
 
 ### Pendiente
 
-- [ ] Layout del dashboard (sidebar)
-- [ ] CRUD de Ads
-  - [ ] Listar ads (tabla con filtros)
-  - [ ] Crear ad (form + upload media)
-  - [ ] Editar ad
-  - [ ] Eliminar ad
-  - [ ] Toggle activo/inactivo
-- [ ] Métricas de ads (impresiones, clicks, CTR)
-- [ ] Endpoints en el API para admin/ads
+- [ ] Conectar con API real (descomentar en `services/ads.ts`)
+- [ ] Upload de media a Supabase Storage
+- [ ] Endpoints en el backend (conectados-api)
 
 ## Comandos
 

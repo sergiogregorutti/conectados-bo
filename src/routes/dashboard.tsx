@@ -1,42 +1,59 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { Button } from '@/components/ui/button'
+import { createFileRoute, redirect, Outlet, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/layout/AppSidebar'
+import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/lib/auth'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context }) => {
-    // Si no está autenticado, redirigir al login
-    if (!context.auth.isAuthenticated) {
+    // Si aún está cargando, no redirigir - dejar que el componente maneje el loading
+    if (context.auth.isLoading) {
+      return
+    }
+    // Debe estar autenticado Y ser admin
+    if (!context.auth.isAuthenticated || !context.auth.isAdmin) {
       throw redirect({ to: '/' })
     }
   },
-  component: Dashboard,
+  component: DashboardLayout,
 })
 
-function Dashboard() {
+function DashboardLayout() {
+  const { isLoading, isAuthenticated, isAdmin } = useAuth()
   const navigate = useNavigate()
-  const { user, signOut } = useAuth()
 
-  const onSignOut = async () => {
-    await signOut()
-    navigate({ to: '/' })
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !isAdmin)) {
+      navigate({ to: '/' })
+    }
+  }, [isLoading, isAuthenticated, isAdmin, navigate])
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-muted-foreground">Cargando...</div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || !isAdmin) {
+    return null
   }
 
   return (
-    <div className="min-h-screen bg-muted/50">
-      <header className="border-b bg-background">
-        <div className="flex h-16 items-center justify-between px-6">
-          <h1 className="text-xl font-semibold">Conectados Admin</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
-            <Button variant="outline" size="sm" onClick={onSignOut}>
-              Cerrar sesión
-            </Button>
-          </div>
-        </div>
-      </header>
-      <main className="p-6">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-      </main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-14 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="h-4" />
+          <span className="text-sm text-muted-foreground">Admin</span>
+        </header>
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

@@ -14,8 +14,8 @@ import { useAuth } from '@/lib/auth'
 
 export const Route = createFileRoute('/')({
   beforeLoad: ({ context }) => {
-    // Si ya está autenticado, redirigir al dashboard
-    if (context.auth.isAuthenticated) {
+    // Si ya está autenticado Y es admin, redirigir al dashboard
+    if (context.auth.isAuthenticated && context.auth.isAdmin) {
       throw redirect({ to: '/dashboard' })
     }
   },
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/')({
 
 function Login() {
   const navigate = useNavigate()
-  const { signIn } = useAuth()
+  const { signIn, signOut } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -35,10 +35,17 @@ function Login() {
     setError(null)
     setIsLoading(true)
 
-    const { error } = await signIn(email, password)
+    const { error, isAdmin } = await signIn(email, password)
 
     if (error) {
       setError(error.message)
+      setIsLoading(false)
+      return
+    }
+
+    if (!isAdmin) {
+      await signOut()
+      setError('No tienes permisos de administrador')
       setIsLoading(false)
       return
     }

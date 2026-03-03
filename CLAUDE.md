@@ -205,13 +205,25 @@ VITE_API_URL=http://localhost:3000/api
 - [x] Supabase Auth integrado
 - [x] Axios con interceptors
 - [x] Login funcional
-- [x] Dashboard con logout
 - [x] Rutas protegidas
+- [x] Design system dark mode (colores de la marca)
+- [x] Layout del dashboard con sidebar (shadcn Sidebar)
+- [x] Navegación a Dashboard y Ads
+- [x] CRUD completo de Ads (con mocks)
+  - [x] Tipos (`types/ad.ts`)
+  - [x] Service con mocks (`services/ads.ts`)
+  - [x] Hooks React Query (`hooks/useAds.ts`)
+  - [x] Listado con tabla y filtros
+  - [x] Crear/Editar ad con formulario
+  - [x] Eliminar ad con confirmación
+  - [x] Toggle activo/inactivo
+- [x] Endpoints documentados en `API_SPEC.md`
 
 ### Siguiente paso
 
-- [ ] Layout del dashboard (sidebar con navegación)
-- [ ] Crear módulo de Ads (service, hook, rutas)
+- [ ] Conectar con API real (descomentar llamadas en `services/ads.ts`)
+- [ ] Upload de media a Supabase Storage
+- [ ] Implementar endpoints en conectados-api
 
 ---
 
