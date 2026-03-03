@@ -74,36 +74,6 @@ src/
 5. Axios interceptor agrega `Authorization: Bearer <token>` a cada request
 6. Rutas protegidas verifican `context.auth.isAuthenticated` en `beforeLoad`
 
-## Progreso de Desarrollo
-
-### Completado
-
-- [x] Proyecto Vite + React + TypeScript
-- [x] Tailwind CSS + shadcn/ui configurado
-- [x] TanStack Router con file-based routing
-- [x] TanStack Query configurado
-- [x] Cliente Supabase configurado
-- [x] Axios con interceptors (auth + error handling)
-- [x] AuthContext con signIn/signOut
-- [x] Página de Login funcional
-- [x] Rutas protegidas (redirect si no autenticado)
-- [x] Design system con colores de la marca (dark mode)
-- [x] Layout del dashboard con sidebar
-- [x] Navegación básica (Dashboard, Ads)
-- [x] CRUD de Ads (con mocks)
-  - [x] Listar ads (tabla con filtros)
-  - [x] Crear ad
-  - [x] Editar ad
-  - [x] Eliminar ad
-  - [x] Toggle activo/inactivo
-- [x] Endpoints documentados para API (ver `API_SPEC.md`)
-
-### Pendiente
-
-- [ ] Conectar con API real (descomentar en `services/ads.ts`)
-- [ ] Upload de media a Supabase Storage
-- [ ] Endpoints en el backend (conectados-api)
-
 ## Comandos
 
 ```bash
