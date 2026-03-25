@@ -22,6 +22,11 @@ api.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${session.access_token}`
   }
 
+  const bypassSecret = import.meta.env.VITE_VERCEL_BYPASS_SECRET
+  if (bypassSecret) {
+    config.headers['x-vercel-protection-bypass'] = bypassSecret
+  }
+
   return config
 })
 
