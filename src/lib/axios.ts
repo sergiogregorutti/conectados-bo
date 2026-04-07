@@ -9,9 +9,6 @@ if (!apiUrl) {
 
 export const api = axios.create({
   baseURL: apiUrl,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 // Interceptor para agregar el token de Supabase a cada request
