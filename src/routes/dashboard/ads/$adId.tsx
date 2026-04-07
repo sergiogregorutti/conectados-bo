@@ -13,8 +13,8 @@ function EditAdPage() {
   const { data, isLoading } = useAd(adId)
   const updateMutation = useUpdateAd()
 
-  const onSubmit = async (formData: CreateAdDto) => {
-    await updateMutation.mutateAsync({ id: adId, data: formData })
+  const onSubmit = async ({ file: _file, ...rest }: CreateAdDto) => {
+    await updateMutation.mutateAsync({ id: adId, data: rest })
     navigate({ to: '/dashboard/ads' })
   }
 

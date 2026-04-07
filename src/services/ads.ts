@@ -25,7 +25,18 @@ export const adsService = {
   },
 
   async create(data: CreateAdDto): Promise<AdResponse> {
-    const response = await api.post<AdResponse>('/admin/ads', data)
+    const formData = new FormData()
+    formData.append('title', data.title)
+    formData.append('type', data.type)
+    formData.append('mediaType', data.mediaType)
+    formData.append('destinationUrl', data.destinationUrl)
+    formData.append('startsAt', data.startsAt)
+    formData.append('endsAt', data.endsAt)
+    formData.append('isActive', String(data.isActive))
+    formData.append('priority', String(data.priority))
+    formData.append('swipeFrequency', String(data.swipeFrequency))
+    formData.append('file', data.file)
+    const response = await api.post<AdResponse>('/admin/ads', formData)
     return response.data
   },
 

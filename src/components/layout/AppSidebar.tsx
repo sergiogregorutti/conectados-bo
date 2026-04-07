@@ -66,20 +66,20 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className="text-muted-foreground">
-              <span className="truncate text-xs">{user?.email}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut}>
-              <LogOut className="h-4 w-4" />
-              <span>Cerrar sesión</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="border-t border-sidebar-border p-3">
+        <div className="flex items-center justify-between gap-2 rounded-md px-2 py-2">
+          <div className="flex min-w-0 flex-col">
+            <span className="text-xs text-muted-foreground">Sesión activa</span>
+            <span className="truncate text-sm font-medium">{user?.email}</span>
+          </div>
+          <button
+            onClick={signOut}
+            title="Cerrar sesión"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )

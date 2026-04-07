@@ -23,7 +23,7 @@ export interface CreateAdDto {
   title: string
   type: AdType
   mediaType: MediaType
-  mediaUrl: string
+  file: File
   destinationUrl: string
   startsAt: string
   endsAt: string
@@ -32,7 +32,17 @@ export interface CreateAdDto {
   swipeFrequency: number
 }
 
-export interface UpdateAdDto extends Partial<CreateAdDto> {}
+export interface UpdateAdDto {
+  title?: string
+  type?: AdType
+  mediaType?: MediaType
+  destinationUrl?: string
+  startsAt?: string
+  endsAt?: string
+  isActive?: boolean
+  priority?: number
+  swipeFrequency?: number
+}
 
 export interface AdsFilters {
   page?: number

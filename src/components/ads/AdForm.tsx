@@ -1,4 +1,5 @@
 import { useForm, Controller } from 'react-hook-form'
+import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,7 +18,6 @@ interface AdFormValues {
   title: string
   type: AdType
   mediaType: MediaType
-  mediaUrl: string
   destinationUrl: string
   startsAt: string
   endsAt: string
@@ -33,10 +33,15 @@ interface AdFormProps {
 }
 
 export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+
   const {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm<AdFormValues>({
     defaultValues: defaultValues
@@ -44,7 +49,6 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
           title: defaultValues.title,
           type: defaultValues.type,
           mediaType: defaultValues.mediaType,
-          mediaUrl: defaultValues.mediaUrl,
           destinationUrl: defaultValues.destinationUrl,
           startsAt: defaultValues.startsAt.split('T')[0],
           endsAt: defaultValues.endsAt.split('T')[0],
@@ -56,7 +60,6 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
           title: '',
           type: 'banner',
           mediaType: 'image',
-          mediaUrl: '',
           destinationUrl: '',
           startsAt: '',
           endsAt: '',
@@ -66,15 +69,33 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
         },
   })
 
+  const mediaType = watch('mediaType')
+  const accept = mediaType === 'video' ? 'video/*' : 'image/*'
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null
+    setSelectedFile(file)
+    setFileError(null)
+  }
+
   const onFormSubmit = async (values: AdFormValues) => {
+    if (!selectedFile && !defaultValues) {
+      setFileError('El archivo es requerido')
+      return
+    }
     await onSubmit({
       ...values,
+      file: selectedFile as File,
       priority: Number(values.priority),
       swipeFrequency: Number(values.swipeFrequency),
       startsAt: new Date(values.startsAt).toISOString(),
       endsAt: new Date(values.endsAt).toISOString(),
     })
   }
+
+  const previewUrl = selectedFile
+    ? URL.createObjectURL(selectedFile)
+    : defaultValues?.mediaUrl ?? null
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
@@ -137,24 +158,52 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="mediaUrl">URL del Media</Label>
-        <Input
-          id="mediaUrl"
-          placeholder="https://..."
-          {...register('mediaUrl', {
-            required: 'La URL del media es requerida',
-            pattern: {
-              value: /^https?:\/\/.+/,
-              message: 'Ingresa una URL válida',
-            },
-          })}
+        <Label>Archivo de Media</Label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={handleFileChange}
         />
-        {errors.mediaUrl && (
-          <p className="text-sm text-destructive">{errors.mediaUrl.message}</p>
+        <div
+          className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border px-6 py-8 transition-colors hover:border-primary hover:bg-muted/30"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {previewUrl ? (
+            mediaType === 'video' ? (
+              <video
+                src={previewUrl}
+                className="mb-3 max-h-40 max-w-full rounded object-contain"
+                controls={false}
+                muted
+              />
+            ) : (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="mb-3 max-h-40 max-w-full rounded object-contain"
+              />
+            )
+          ) : (
+            <div className="mb-3 text-4xl text-muted-foreground">
+              {mediaType === 'video' ? '🎬' : '🖼️'}
+            </div>
+          )}
+          <p className="text-sm font-medium">
+            {selectedFile
+              ? selectedFile.name
+              : defaultValues
+                ? 'Haz clic para reemplazar el archivo'
+                : 'Haz clic para seleccionar un archivo'}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {mediaType === 'video' ? 'MP4, MOV, WebM' : 'JPG, PNG, WebP, GIF'}
+          </p>
+        </div>
+        {fileError && (
+          <p className="text-sm text-destructive">{fileError}</p>
         )}
-        <p className="text-sm text-muted-foreground">
-          URL de la imagen o video (Supabase Storage)
-        </p>
       </div>
 
       <div className="space-y-2">
