@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,6 +14,8 @@ import { useAuth } from '@/lib/auth'
 
 export const Route = createFileRoute('/')({
   beforeLoad: ({ context }) => {
+    // Esperar a que la sesión se hidrate (localStorage) antes de decidir.
+    if (context.auth.isLoading) return
     // Si ya está autenticado Y es admin, redirigir al dashboard
     if (context.auth.isAuthenticated && context.auth.isAdmin) {
       throw redirect({ to: '/dashboard' })
@@ -24,11 +26,32 @@ export const Route = createFileRoute('/')({
 
 function Login() {
   const navigate = useNavigate()
-  const { signIn, signOut } = useAuth()
+  const {
+    signIn,
+    signOut,
+    isLoading: isAuthLoading,
+    isAuthenticated,
+    isAdmin,
+  } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  // Una vez que la sesión se hidrata desde localStorage, redirigir al dashboard.
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated && isAdmin) {
+      navigate({ to: '/dashboard' })
+    }
+  }, [isAuthLoading, isAuthenticated, isAdmin, navigate])
+
+  if (isAuthLoading || (isAuthenticated && isAdmin)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    )
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
