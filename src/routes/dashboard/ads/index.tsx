@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, ExternalLink, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
 import { useAds, useDeleteAd, useToggleAd } from '@/hooks/useAds'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -46,7 +46,7 @@ function AdsPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  const { data, isLoading } = useAds({
+  const { data, isLoading, refetch, isFetching } = useAds({
     page,
     limit: ITEMS_PER_PAGE,
     search: search || undefined,
@@ -114,12 +114,17 @@ function AdsPage() {
             Gestiona los anuncios de la aplicación
           </p>
         </div>
-        <Button asChild>
-          <Link to="/dashboard/ads/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Crear Ad
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}>
+            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
+          <Button asChild>
+            <Link to="/dashboard/ads/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Crear Ad
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filtros */}

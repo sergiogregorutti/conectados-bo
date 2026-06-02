@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { LayoutDashboard, Megaphone, LogOut } from 'lucide-react'
+import { LayoutDashboard, Megaphone, Users, LogOut } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,11 @@ const navigation = [
     title: 'Dashboard',
     url: '/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    title: 'Usuarios',
+    url: '/dashboard/users',
+    icon: Users,
   },
   {
     title: 'Ads',
