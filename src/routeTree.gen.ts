@@ -17,6 +17,7 @@ import { Route as DashboardDebateIndexRouteImport } from './routes/dashboard/deb
 import { Route as DashboardAdsIndexRouteImport } from './routes/dashboard/ads/index'
 import { Route as DashboardUsersUserIdRouteImport } from './routes/dashboard/users/$userId'
 import { Route as DashboardDebateNewRouteImport } from './routes/dashboard/debate/new'
+import { Route as DashboardDebatePostIdRouteImport } from './routes/dashboard/debate/$postId'
 import { Route as DashboardAdsNewRouteImport } from './routes/dashboard/ads/new'
 import { Route as DashboardAdsAdIdRouteImport } from './routes/dashboard/ads/$adId'
 
@@ -60,6 +61,11 @@ const DashboardDebateNewRoute = DashboardDebateNewRouteImport.update({
   path: '/debate/new',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardDebatePostIdRoute = DashboardDebatePostIdRouteImport.update({
+  id: '/debate/$postId',
+  path: '/debate/$postId',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardAdsNewRoute = DashboardAdsNewRouteImport.update({
   id: '/ads/new',
   path: '/ads/new',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/ads/$adId': typeof DashboardAdsAdIdRoute
   '/dashboard/ads/new': typeof DashboardAdsNewRoute
+  '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/ads/': typeof DashboardAdsIndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/ads/$adId': typeof DashboardAdsAdIdRoute
   '/dashboard/ads/new': typeof DashboardAdsNewRoute
+  '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/ads': typeof DashboardAdsIndexRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/ads/$adId': typeof DashboardAdsAdIdRoute
   '/dashboard/ads/new': typeof DashboardAdsNewRoute
+  '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/ads/': typeof DashboardAdsIndexRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/ads/$adId'
     | '/dashboard/ads/new'
+    | '/dashboard/debate/$postId'
     | '/dashboard/debate/new'
     | '/dashboard/users/$userId'
     | '/dashboard/ads/'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/ads/$adId'
     | '/dashboard/ads/new'
+    | '/dashboard/debate/$postId'
     | '/dashboard/debate/new'
     | '/dashboard/users/$userId'
     | '/dashboard/ads'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/ads/$adId'
     | '/dashboard/ads/new'
+    | '/dashboard/debate/$postId'
     | '/dashboard/debate/new'
     | '/dashboard/users/$userId'
     | '/dashboard/ads/'
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDebateNewRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/debate/$postId': {
+      id: '/dashboard/debate/$postId'
+      path: '/debate/$postId'
+      fullPath: '/dashboard/debate/$postId'
+      preLoaderRoute: typeof DashboardDebatePostIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/ads/new': {
       id: '/dashboard/ads/new'
       path: '/ads/new'
@@ -229,6 +248,7 @@ interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardAdsAdIdRoute: typeof DashboardAdsAdIdRoute
   DashboardAdsNewRoute: typeof DashboardAdsNewRoute
+  DashboardDebatePostIdRoute: typeof DashboardDebatePostIdRoute
   DashboardDebateNewRoute: typeof DashboardDebateNewRoute
   DashboardUsersUserIdRoute: typeof DashboardUsersUserIdRoute
   DashboardAdsIndexRoute: typeof DashboardAdsIndexRoute
@@ -240,6 +260,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardAdsAdIdRoute: DashboardAdsAdIdRoute,
   DashboardAdsNewRoute: DashboardAdsNewRoute,
+  DashboardDebatePostIdRoute: DashboardDebatePostIdRoute,
   DashboardDebateNewRoute: DashboardDebateNewRoute,
   DashboardUsersUserIdRoute: DashboardUsersUserIdRoute,
   DashboardAdsIndexRoute: DashboardAdsIndexRoute,

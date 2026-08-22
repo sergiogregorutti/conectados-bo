@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
   Plus,
+  Pencil,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
@@ -107,18 +108,19 @@ function DebatePage() {
               <TableHead className="text-right">Comentarios</TableHead>
               <TableHead className="text-right">Reacciones</TableHead>
               <TableHead className="text-center">Activo</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   Cargando...
                 </TableCell>
               </TableRow>
             ) : posts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   No hay posts para mostrar
                 </TableCell>
               </TableRow>
@@ -128,7 +130,7 @@ function DebatePage() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img
-                        src={post.imageUrl}
+                        src={post.images[0]?.url}
                         alt={post.description}
                         className="h-10 w-10 rounded object-cover"
                       />
@@ -161,6 +163,13 @@ function DebatePage() {
                       onCheckedChange={() => onToggle(post)}
                       disabled={toggleMutation.isPending}
                     />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link to="/dashboard/debate/$postId" params={{ postId: post.id }}>
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
