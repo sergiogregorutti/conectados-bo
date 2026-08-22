@@ -146,10 +146,14 @@ function DebatePage() {
                     {formatDate(post.publishedAt)}
                   </TableCell>
                   <TableCell className="text-right font-mono">
-                    <span className="inline-flex items-center gap-1">
+                    <Link
+                      to="/dashboard/debate/comments"
+                      search={{ postId: post.id }}
+                      className="inline-flex items-center gap-1 hover:underline"
+                    >
                       <MessageSquare className="h-3 w-3 text-muted-foreground" />
                       {formatNumber(post._count?.comments ?? 0)}
-                    </span>
+                    </Link>
                   </TableCell>
                   <TableCell className="text-right font-mono">
                     <span className="inline-flex items-center gap-1">

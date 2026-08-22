@@ -7,6 +7,7 @@ import type {
   PostResponse,
   ReorderPostImagesDto,
 } from '@/types/post'
+import type { CommentsFilters, CommentsListResponse, CommentResponse } from '@/types/debateComment'
 
 export const debateService = {
   async getPosts(filters?: PostsFilters): Promise<PostsListResponse> {
@@ -71,6 +72,31 @@ export const debateService = {
       `/admin/debate/posts/${id}/images/order`,
       data,
     )
+    return response.data
+  },
+
+  async getComments(filters?: CommentsFilters): Promise<CommentsListResponse> {
+    const response = await api.get<CommentsListResponse>('/admin/debate/comments', {
+      params: {
+        page: filters?.page,
+        limit: filters?.limit,
+        // 'all' no es un filtro real: se omite para traer todos
+        status: filters?.status === 'all' ? undefined : filters?.status,
+        postId: filters?.postId,
+      },
+    })
+    return response.data
+  },
+
+  // Soft-delete: el backend marca el comment como REMOVED y resuelve sus
+  // denuncias pendientes, no borra la fila.
+  async removeComment(id: string): Promise<void> {
+    await api.delete(`/admin/debate/comments/${id}`)
+  },
+
+  // Solo válido si el comment está FLAGGED (lo saca de la cola de revisión).
+  async approveComment(id: string): Promise<CommentResponse> {
+    const response = await api.patch<CommentResponse>(`/admin/debate/comments/${id}/approve`)
     return response.data
   },
 }
