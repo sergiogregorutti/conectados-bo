@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { z } from 'zod'
 import { ChevronLeft, ChevronRight, RefreshCw, Flag, Check, Trash2, X } from 'lucide-react'
 import { useApproveComment, useComments, useRemoveComment } from '@/hooks/useDebateComments'
@@ -76,7 +76,8 @@ function CommentsPage() {
     setPage(1)
   }
 
-  const onConfirmRemove = () => {
+  const onConfirmRemove = (event: MouseEvent) => {
+    event.preventDefault()
     if (!removeTarget) return
     removeMutation.mutate(removeTarget.id, { onSuccess: () => setRemoveTarget(null) })
   }
