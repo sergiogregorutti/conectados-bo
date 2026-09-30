@@ -18,6 +18,7 @@ import {
   useReorderPostImages,
 } from '@/hooks/usePosts'
 import { MAX_POST_IMAGES, type DebatePostImage } from '@/types/post'
+import { DebatePostPreview } from '@/components/debate/DebatePostPreview'
 
 interface PostImagesManagerProps {
   postId: string
@@ -87,6 +88,11 @@ export function PostImagesManager({ postId, images }: PostImagesManagerProps) {
   return (
     <div className="space-y-3">
       <Label>Imágenes ({images.length}/{MAX_POST_IMAGES})</Label>
+      <p className="text-sm text-muted-foreground">
+        Recomendado 1600×1000px (relación 16:10, horizontal). Se recortan en modo
+        "cover": usá la misma relación en todas las imágenes del post para que el
+        carrusel se vea consistente.
+      </p>
 
       <div className="flex flex-wrap gap-3">
         {localImages.map((image, index) => (
@@ -132,6 +138,13 @@ export function PostImagesManager({ postId, images }: PostImagesManagerProps) {
           </div>
         ))}
       </div>
+
+      {localImages.length > 0 && (
+        <div className="space-y-2 pt-1">
+          <p className="text-xs font-medium text-muted-foreground">Vista previa en la app</p>
+          <DebatePostPreview imageUrls={localImages.map((image) => image.url)} />
+        </div>
+      )}
 
       {orderDirty && (
         <div className="flex items-center gap-2">

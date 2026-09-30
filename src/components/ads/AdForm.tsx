@@ -32,6 +32,69 @@ interface AdFormProps {
   isLoading?: boolean
 }
 
+// Tamaños según cómo se renderiza cada tipo en la app (AdBanner/AdInterstitial):
+// el banner ocupa el ancho de la card del stack a 100pt de alto (~3.5:1), y el
+// interstitial ocupa toda la pantalla en modo cover (relación vertical ~2:3).
+// Ambos se recortan con "cover", así que lo importante debe ir centrado.
+const RECOMMENDED_SIZE: Record<AdType, string> = {
+  banner: 'Recomendado ~1200×340px (relación 3.5:1, horizontal). Se recorta en modo "cover": centrá el contenido importante.',
+  interstitial: 'Recomendado ~1080×1620px (relación 2:3, vertical, pantalla completa). Se recorta en modo "cover": centrá el contenido importante.',
+}
+
+// MP4 (H.264/AAC) es el único formato que reproduce de forma confiable tanto
+// en iOS (AVPlayer) como en Android (ExoPlayer) vía expo-av — WebM no anda en
+// iOS y MOV es poco confiable en Android según el códec interno. Validado
+// también en el backend (ads.service.ts).
+const ALLOWED_VIDEO_TYPE = 'video/mp4'
+const VIDEO_HELP =
+  'Solo se acepta MP4 (H.264 + audio AAC): es el único formato que reproduce bien tanto en iOS como en Android. El video se descarga en cada impresión, así que conviene un clip corto (~10-15s) y liviano (idealmente menos de 5-8MB).'
+
+function AdMediaPreview({
+  src,
+  mediaType,
+  className,
+}: {
+  src: string
+  mediaType: MediaType
+  className?: string
+}) {
+  if (mediaType === 'video') {
+    return <video src={src} className={className} muted autoPlay loop playsInline />
+  }
+  return <img src={src} alt="Vista previa" className={className} />
+}
+
+// Mockups aproximados de AdBanner.tsx / AdInterstitial.tsx (ver comentario de
+// RECOMMENDED_SIZE) para mostrar cómo se recorta la imagen dentro de la app.
+function BannerPreview({ previewUrl, mediaType }: { previewUrl: string; mediaType: MediaType }) {
+  return (
+    <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[1.75rem] border-4 border-foreground/80 bg-muted shadow-sm">
+      <div className="flex aspect-[9/19.5] flex-col justify-center gap-1.5 p-2">
+        <div className="flex-1 rounded-lg bg-background/60" />
+        <div className="aspect-[3.5/1] w-full overflow-hidden rounded-md">
+          <AdMediaPreview src={previewUrl} mediaType={mediaType} className="h-full w-full object-cover" />
+        </div>
+        <div className="flex-1 rounded-lg bg-background/60" />
+      </div>
+    </div>
+  )
+}
+
+function InterstitialPreview({ previewUrl, mediaType }: { previewUrl: string; mediaType: MediaType }) {
+  return (
+    <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[1.75rem] border-4 border-foreground/80 bg-black shadow-sm">
+      <div className="flex aspect-[9/19.5] flex-col">
+        <div className="h-[65%] w-full overflow-hidden bg-muted">
+          <AdMediaPreview src={previewUrl} mediaType={mediaType} className="h-full w-full object-cover" />
+        </div>
+        <div className="flex flex-1 items-center justify-center bg-black text-[10px] text-white/50">
+          resto de la pantalla
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -70,10 +133,17 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
   })
 
   const mediaType = watch('mediaType')
-  const accept = mediaType === 'video' ? 'video/*' : 'image/*'
+  const adType = watch('type')
+  const accept = mediaType === 'video' ? ALLOWED_VIDEO_TYPE : 'image/*'
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null
+    if (file && mediaType === 'video' && file.type !== ALLOWED_VIDEO_TYPE) {
+      setFileError('Solo se acepta video en formato MP4 (H.264/AAC)')
+      setSelectedFile(null)
+      e.target.value = ''
+      return
+    }
     setSelectedFile(file)
     setFileError(null)
   }
@@ -135,6 +205,7 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
           <p className="text-sm text-muted-foreground">
             Banner: en el stack. Interstitial: pantalla completa
           </p>
+          <p className="text-sm text-muted-foreground">{RECOMMENDED_SIZE[adType]}</p>
         </div>
 
         <div className="space-y-2">
@@ -154,6 +225,9 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
               </Select>
             )}
           />
+          {mediaType === 'video' && (
+            <p className="text-sm text-muted-foreground">{VIDEO_HELP}</p>
+          )}
         </div>
       </div>
 
@@ -198,11 +272,24 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
                 : 'Haz clic para seleccionar un archivo'}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {mediaType === 'video' ? 'MP4, MOV, WebM' : 'JPG, PNG, WebP, GIF'}
+            {mediaType === 'video' ? 'Solo MP4 (H.264 + AAC)' : 'JPG, PNG, WebP, GIF'}
           </p>
         </div>
         {fileError && (
           <p className="text-sm text-destructive">{fileError}</p>
+        )}
+
+        {previewUrl && (
+          <div className="space-y-2 pt-2">
+            <p className="text-xs font-medium text-muted-foreground">
+              Vista previa en la app ({adType === 'banner' ? 'banner en el stack' : 'pantalla completa'})
+            </p>
+            {adType === 'banner' ? (
+              <BannerPreview previewUrl={previewUrl} mediaType={mediaType} />
+            ) : (
+              <InterstitialPreview previewUrl={previewUrl} mediaType={mediaType} />
+            )}
+          </div>
         )}
       </div>
 

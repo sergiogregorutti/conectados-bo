@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { MAX_POST_IMAGES, type CreatePostDto, type DebatePost } from '@/types/post'
 import { PostImagesManager } from '@/components/debate/PostImagesManager'
+import { DebatePostPreview } from '@/components/debate/DebatePostPreview'
 
 interface PostFormValues {
   description: string
@@ -111,6 +112,11 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
         ) : (
           <>
             <Label>Imágenes</Label>
+            <p className="text-sm text-muted-foreground">
+              Recomendado 1600×1000px (relación 16:10, horizontal). Se recortan en
+              modo "cover": usá la misma relación en todas las imágenes del post
+              para que el carrusel se vea consistente.
+            </p>
             <input
               ref={fileInputRef}
               type="file"
@@ -176,6 +182,13 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
                   {MAX_POST_IMAGES})
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">JPG, PNG, WebP, GIF</p>
+              </div>
+            )}
+
+            {previewUrls.length > 0 && (
+              <div className="space-y-2 pt-2">
+                <p className="text-xs font-medium text-muted-foreground">Vista previa en la app</p>
+                <DebatePostPreview imageUrls={previewUrls} />
               </div>
             )}
           </>

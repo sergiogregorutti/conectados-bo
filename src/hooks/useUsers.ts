@@ -38,18 +38,3 @@ export function useSetUserStatus() {
     },
   })
 }
-
-// TEMPORAL: solo para curar la foto de usuarios de prueba antes del release a
-// producción / Apple review. Remover junto con el endpoint en la API.
-export function useReplaceUserPhoto() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ id, file }: { id: string; file: File }) =>
-      usersService.replacePhoto(id, file),
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] })
-    },
-  })
-}
