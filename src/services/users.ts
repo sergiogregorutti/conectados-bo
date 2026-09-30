@@ -36,4 +36,13 @@ export const usersService = {
     const response = await api.post<UserStatusResponse>(`/admin/users/${id}/${action}`, body)
     return response.data
   },
+
+  // TEMPORAL: solo para curar la foto de usuarios de prueba antes del release
+  // a producción / Apple review. Remover junto con el endpoint en la API.
+  async replacePhoto(id: string, file: File): Promise<{ photoUrl: string }> {
+    const formData = new FormData()
+    formData.append('photo', file)
+    const response = await api.post<{ photoUrl: string }>(`/admin/users/${id}/photo`, formData)
+    return response.data
+  },
 }

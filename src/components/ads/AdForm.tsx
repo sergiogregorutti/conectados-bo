@@ -316,7 +316,7 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
           {isLoading ? 'Guardando...' : defaultValues ? 'Guardar cambios' : 'Crear Ad'}
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link to="/dashboard/ads">Cancelar</Link>
+          <Link to="/dashboard/campaigns">Cancelar</Link>
         </Button>
       </div>
     </form>

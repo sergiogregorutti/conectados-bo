@@ -27,7 +27,7 @@ const navigation = [
   },
   {
     title: 'Ads',
-    url: '/dashboard/ads',
+    url: '/dashboard/campaigns',
     icon: Megaphone,
   },
   {

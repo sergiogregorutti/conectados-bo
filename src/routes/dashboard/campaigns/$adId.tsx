@@ -3,7 +3,7 @@ import { AdForm } from '@/components/ads/AdForm'
 import { useAd, useUpdateAd } from '@/hooks/useAds'
 import type { CreateAdDto } from '@/types/ad'
 
-export const Route = createFileRoute('/dashboard/ads/$adId')({
+export const Route = createFileRoute('/dashboard/campaigns/$adId')({
   component: EditAdPage,
 })
 
@@ -15,7 +15,7 @@ function EditAdPage() {
 
   const onSubmit = async ({ file: _file, ...rest }: CreateAdDto) => {
     await updateMutation.mutateAsync({ id: adId, data: rest })
-    navigate({ to: '/dashboard/ads' })
+    navigate({ to: '/dashboard/campaigns' })
   }
 
   if (isLoading) {

@@ -1,16 +1,17 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { isAxiosError } from 'axios'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   ArrowLeft,
   Calendar,
+  Camera,
   CheckCircle2,
   ShieldCheck,
   ShieldOff,
   Ticket,
   XCircle,
 } from 'lucide-react'
-import { useUser } from '@/hooks/useUsers'
+import { useUser, useReplaceUserPhoto } from '@/hooks/useUsers'
 import { UserStatusDialog } from '@/components/users/UserStatusDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -105,6 +106,8 @@ function UserDetailPage() {
 
 function UserHeader({ user }: { user: UserDetail }) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const replacePhotoMutation = useReplaceUserPhoto()
   const initials = (user.name ?? '?')
     .split(' ')
     .map((part) => part[0])
@@ -115,13 +118,41 @@ function UserHeader({ user }: { user: UserDetail }) {
 
   const action = user.disabled ? 'enable' : 'disable'
 
+  // TEMPORAL: permite curar la foto de usuarios de prueba antes del release a
+  // producción / Apple review. Remover junto con el hook y el endpoint.
+  const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    replacePhotoMutation.mutate({ id: user.id, file })
+  }
+
   return (
     <Card>
       <CardContent className="flex flex-wrap items-center gap-6 pt-6">
-        <Avatar size="lg" className="size-20">
-          {user.photoUrl ? <AvatarImage src={user.photoUrl} alt={user.name ?? ''} /> : null}
-          <AvatarFallback className="text-xl">{initials || '?'}</AvatarFallback>
-        </Avatar>
+        <div className="group relative shrink-0">
+          <Avatar size="lg" className="size-20">
+            {user.photoUrl ? <AvatarImage src={user.photoUrl} alt={user.name ?? ''} /> : null}
+            <AvatarFallback className="text-xl">{initials || '?'}</AvatarFallback>
+          </Avatar>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onPhotoChange}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={replacePhotoMutation.isPending}
+            className="absolute -bottom-1 -right-1 rounded-full bg-primary p-1.5 text-primary-foreground shadow disabled:opacity-50"
+            aria-label="Cambiar foto"
+            title="Cambiar foto (temporal, pre-lanzamiento)"
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+        </div>
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold">{user.name ?? 'Sin nombre'}</h1>
@@ -141,6 +172,12 @@ function UserHeader({ user }: { user: UserDetail }) {
           <p className="text-sm text-muted-foreground font-mono break-all">{user.id}</p>
           {user.email && (
             <p className="text-sm text-muted-foreground">{user.email}</p>
+          )}
+          {replacePhotoMutation.isPending && (
+            <p className="text-xs text-muted-foreground">Subiendo foto...</p>
+          )}
+          {replacePhotoMutation.isError && (
+            <p className="text-xs text-destructive">No se pudo cambiar la foto</p>
           )}
         </div>
         <Separator orientation="vertical" className="hidden h-20 md:block" />

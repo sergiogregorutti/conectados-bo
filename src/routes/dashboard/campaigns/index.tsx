@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import type { Ad, AdType } from '@/types/ad'
 
-export const Route = createFileRoute('/dashboard/ads/')({
+export const Route = createFileRoute('/dashboard/campaigns/')({
   component: AdsPage,
 })
 
@@ -119,7 +119,7 @@ function AdsPage() {
             <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
           </Button>
           <Button asChild>
-            <Link to="/dashboard/ads/new">
+            <Link to="/dashboard/campaigns/new">
               <Plus className="mr-2 h-4 w-4" />
               Crear Ad
             </Link>
@@ -240,7 +240,7 @@ function AdsPage() {
                         </a>
                       </Button>
                       <Button variant="ghost" size="icon" asChild>
-                        <Link to="/dashboard/ads/$adId" params={{ adId: ad.id }}>
+                        <Link to="/dashboard/campaigns/$adId" params={{ adId: ad.id }}>
                           <Pencil className="h-4 w-4" />
                         </Link>
                       </Button>

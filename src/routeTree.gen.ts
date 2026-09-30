@@ -14,13 +14,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
 import { Route as DashboardDebateIndexRouteImport } from './routes/dashboard/debate/index'
-import { Route as DashboardAdsIndexRouteImport } from './routes/dashboard/ads/index'
+import { Route as DashboardCampaignsIndexRouteImport } from './routes/dashboard/campaigns/index'
 import { Route as DashboardUsersUserIdRouteImport } from './routes/dashboard/users/$userId'
 import { Route as DashboardDebateNewRouteImport } from './routes/dashboard/debate/new'
 import { Route as DashboardDebateCommentsRouteImport } from './routes/dashboard/debate/comments'
 import { Route as DashboardDebatePostIdRouteImport } from './routes/dashboard/debate/$postId'
-import { Route as DashboardAdsNewRouteImport } from './routes/dashboard/ads/new'
-import { Route as DashboardAdsAdIdRouteImport } from './routes/dashboard/ads/$adId'
+import { Route as DashboardCampaignsNewRouteImport } from './routes/dashboard/campaigns/new'
+import { Route as DashboardCampaignsAdIdRouteImport } from './routes/dashboard/campaigns/$adId'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -47,9 +47,9 @@ const DashboardDebateIndexRoute = DashboardDebateIndexRouteImport.update({
   path: '/debate/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdsIndexRoute = DashboardAdsIndexRouteImport.update({
-  id: '/ads/',
-  path: '/ads/',
+const DashboardCampaignsIndexRoute = DashboardCampaignsIndexRouteImport.update({
+  id: '/campaigns/',
+  path: '/campaigns/',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardUsersUserIdRoute = DashboardUsersUserIdRouteImport.update({
@@ -72,14 +72,14 @@ const DashboardDebatePostIdRoute = DashboardDebatePostIdRouteImport.update({
   path: '/debate/$postId',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdsNewRoute = DashboardAdsNewRouteImport.update({
-  id: '/ads/new',
-  path: '/ads/new',
+const DashboardCampaignsNewRoute = DashboardCampaignsNewRouteImport.update({
+  id: '/campaigns/new',
+  path: '/campaigns/new',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdsAdIdRoute = DashboardAdsAdIdRouteImport.update({
-  id: '/ads/$adId',
-  path: '/ads/$adId',
+const DashboardCampaignsAdIdRoute = DashboardCampaignsAdIdRouteImport.update({
+  id: '/campaigns/$adId',
+  path: '/campaigns/$adId',
   getParentRoute: () => DashboardRoute,
 } as any)
 
@@ -87,26 +87,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/ads/$adId': typeof DashboardAdsAdIdRoute
-  '/dashboard/ads/new': typeof DashboardAdsNewRoute
+  '/dashboard/campaigns/$adId': typeof DashboardCampaignsAdIdRoute
+  '/dashboard/campaigns/new': typeof DashboardCampaignsNewRoute
   '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/comments': typeof DashboardDebateCommentsRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
-  '/dashboard/ads/': typeof DashboardAdsIndexRoute
+  '/dashboard/campaigns/': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/dashboard/ads/$adId': typeof DashboardAdsAdIdRoute
-  '/dashboard/ads/new': typeof DashboardAdsNewRoute
+  '/dashboard/campaigns/$adId': typeof DashboardCampaignsAdIdRoute
+  '/dashboard/campaigns/new': typeof DashboardCampaignsNewRoute
   '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/comments': typeof DashboardDebateCommentsRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
-  '/dashboard/ads': typeof DashboardAdsIndexRoute
+  '/dashboard/campaigns': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate': typeof DashboardDebateIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
 }
@@ -115,13 +115,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/ads/$adId': typeof DashboardAdsAdIdRoute
-  '/dashboard/ads/new': typeof DashboardAdsNewRoute
+  '/dashboard/campaigns/$adId': typeof DashboardCampaignsAdIdRoute
+  '/dashboard/campaigns/new': typeof DashboardCampaignsNewRoute
   '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/comments': typeof DashboardDebateCommentsRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
-  '/dashboard/ads/': typeof DashboardAdsIndexRoute
+  '/dashboard/campaigns/': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
@@ -131,26 +131,26 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/'
-    | '/dashboard/ads/$adId'
-    | '/dashboard/ads/new'
+    | '/dashboard/campaigns/$adId'
+    | '/dashboard/campaigns/new'
     | '/dashboard/debate/$postId'
     | '/dashboard/debate/comments'
     | '/dashboard/debate/new'
     | '/dashboard/users/$userId'
-    | '/dashboard/ads/'
+    | '/dashboard/campaigns/'
     | '/dashboard/debate/'
     | '/dashboard/users/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
-    | '/dashboard/ads/$adId'
-    | '/dashboard/ads/new'
+    | '/dashboard/campaigns/$adId'
+    | '/dashboard/campaigns/new'
     | '/dashboard/debate/$postId'
     | '/dashboard/debate/comments'
     | '/dashboard/debate/new'
     | '/dashboard/users/$userId'
-    | '/dashboard/ads'
+    | '/dashboard/campaigns'
     | '/dashboard/debate'
     | '/dashboard/users'
   id:
@@ -158,13 +158,13 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/'
-    | '/dashboard/ads/$adId'
-    | '/dashboard/ads/new'
+    | '/dashboard/campaigns/$adId'
+    | '/dashboard/campaigns/new'
     | '/dashboard/debate/$postId'
     | '/dashboard/debate/comments'
     | '/dashboard/debate/new'
     | '/dashboard/users/$userId'
-    | '/dashboard/ads/'
+    | '/dashboard/campaigns/'
     | '/dashboard/debate/'
     | '/dashboard/users/'
   fileRoutesById: FileRoutesById
@@ -211,11 +211,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDebateIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/ads/': {
-      id: '/dashboard/ads/'
-      path: '/ads'
-      fullPath: '/dashboard/ads/'
-      preLoaderRoute: typeof DashboardAdsIndexRouteImport
+    '/dashboard/campaigns/': {
+      id: '/dashboard/campaigns/'
+      path: '/campaigns'
+      fullPath: '/dashboard/campaigns/'
+      preLoaderRoute: typeof DashboardCampaignsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/users/$userId': {
@@ -246,18 +246,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDebatePostIdRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/ads/new': {
-      id: '/dashboard/ads/new'
-      path: '/ads/new'
-      fullPath: '/dashboard/ads/new'
-      preLoaderRoute: typeof DashboardAdsNewRouteImport
+    '/dashboard/campaigns/new': {
+      id: '/dashboard/campaigns/new'
+      path: '/campaigns/new'
+      fullPath: '/dashboard/campaigns/new'
+      preLoaderRoute: typeof DashboardCampaignsNewRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/ads/$adId': {
-      id: '/dashboard/ads/$adId'
-      path: '/ads/$adId'
-      fullPath: '/dashboard/ads/$adId'
-      preLoaderRoute: typeof DashboardAdsAdIdRouteImport
+    '/dashboard/campaigns/$adId': {
+      id: '/dashboard/campaigns/$adId'
+      path: '/campaigns/$adId'
+      fullPath: '/dashboard/campaigns/$adId'
+      preLoaderRoute: typeof DashboardCampaignsAdIdRouteImport
       parentRoute: typeof DashboardRoute
     }
   }
@@ -265,26 +265,26 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardAdsAdIdRoute: typeof DashboardAdsAdIdRoute
-  DashboardAdsNewRoute: typeof DashboardAdsNewRoute
+  DashboardCampaignsAdIdRoute: typeof DashboardCampaignsAdIdRoute
+  DashboardCampaignsNewRoute: typeof DashboardCampaignsNewRoute
   DashboardDebatePostIdRoute: typeof DashboardDebatePostIdRoute
   DashboardDebateCommentsRoute: typeof DashboardDebateCommentsRoute
   DashboardDebateNewRoute: typeof DashboardDebateNewRoute
   DashboardUsersUserIdRoute: typeof DashboardUsersUserIdRoute
-  DashboardAdsIndexRoute: typeof DashboardAdsIndexRoute
+  DashboardCampaignsIndexRoute: typeof DashboardCampaignsIndexRoute
   DashboardDebateIndexRoute: typeof DashboardDebateIndexRoute
   DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardAdsAdIdRoute: DashboardAdsAdIdRoute,
-  DashboardAdsNewRoute: DashboardAdsNewRoute,
+  DashboardCampaignsAdIdRoute: DashboardCampaignsAdIdRoute,
+  DashboardCampaignsNewRoute: DashboardCampaignsNewRoute,
   DashboardDebatePostIdRoute: DashboardDebatePostIdRoute,
   DashboardDebateCommentsRoute: DashboardDebateCommentsRoute,
   DashboardDebateNewRoute: DashboardDebateNewRoute,
   DashboardUsersUserIdRoute: DashboardUsersUserIdRoute,
-  DashboardAdsIndexRoute: DashboardAdsIndexRoute,
+  DashboardCampaignsIndexRoute: DashboardCampaignsIndexRoute,
   DashboardDebateIndexRoute: DashboardDebateIndexRoute,
   DashboardUsersIndexRoute: DashboardUsersIndexRoute,
 }

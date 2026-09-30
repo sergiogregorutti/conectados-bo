@@ -15,12 +15,12 @@ export const adsService = {
     if (filters?.type) params.append('type', filters.type)
     if (filters?.isActive !== undefined) params.append('isActive', String(filters.isActive))
     if (filters?.search) params.append('search', filters.search)
-    const response = await api.get<AdsListResponse>(`/admin/ads?${params}`)
+    const response = await api.get<AdsListResponse>(`/admin/campaigns?${params}`)
     return response.data
   },
 
   async getById(id: string): Promise<AdResponse> {
-    const response = await api.get<AdResponse>(`/admin/ads/${id}`)
+    const response = await api.get<AdResponse>(`/admin/campaigns/${id}`)
     return response.data
   },
 
@@ -36,21 +36,21 @@ export const adsService = {
     formData.append('priority', String(data.priority))
     formData.append('swipeFrequency', String(data.swipeFrequency))
     formData.append('file', data.file)
-    const response = await api.post<AdResponse>('/admin/ads', formData)
+    const response = await api.post<AdResponse>('/admin/campaigns', formData)
     return response.data
   },
 
   async update(id: string, data: UpdateAdDto): Promise<AdResponse> {
-    const response = await api.patch<AdResponse>(`/admin/ads/${id}`, data)
+    const response = await api.patch<AdResponse>(`/admin/campaigns/${id}`, data)
     return response.data
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/admin/ads/${id}`)
+    await api.delete(`/admin/campaigns/${id}`)
   },
 
   async toggle(id: string): Promise<AdResponse> {
-    const response = await api.post<AdResponse>(`/admin/ads/${id}/toggle`)
+    const response = await api.post<AdResponse>(`/admin/campaigns/${id}/toggle`)
     return response.data
   },
 }
