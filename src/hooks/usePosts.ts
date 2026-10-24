@@ -94,3 +94,14 @@ export function useReorderPostImages() {
     },
   })
 }
+
+export function useDeletePost() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => debateService.deletePost(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+  })
+}

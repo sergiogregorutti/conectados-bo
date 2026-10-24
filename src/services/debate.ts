@@ -75,6 +75,10 @@ export const debateService = {
     return response.data
   },
 
+  async deletePost(id: string): Promise<void> {
+    await api.delete(`/admin/debate/posts/${id}`)
+  },
+
   async getComments(filters?: CommentsFilters): Promise<CommentsListResponse> {
     const response = await api.get<CommentsListResponse>('/admin/debate/comments', {
       params: {

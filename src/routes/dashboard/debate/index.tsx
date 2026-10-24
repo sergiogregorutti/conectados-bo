@@ -3,13 +3,14 @@ import { useState } from 'react'
 import {
   Plus,
   Pencil,
+  Trash2,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
   MessageSquare,
   Heart,
 } from 'lucide-react'
-import { usePosts, useTogglePost } from '@/hooks/usePosts'
+import { usePosts, useTogglePost, useDeletePost } from '@/hooks/usePosts'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
@@ -28,6 +29,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import type { DebatePost, PostStatus } from '@/types/post'
 
 export const Route = createFileRoute('/dashboard/debate/')({
@@ -47,6 +58,8 @@ function DebatePage() {
   })
 
   const toggleMutation = useTogglePost()
+  const deleteMutation = useDeletePost()
+  const [deleteTarget, setDeleteTarget] = useState<DebatePost | null>(null)
 
   const posts = data?.data ?? []
   const pagination = data?.pagination
@@ -58,6 +71,13 @@ function DebatePage() {
 
   const onToggle = (post: DebatePost) => {
     toggleMutation.mutate({ id: post.id, isActive: !post.isActive })
+  }
+
+  const onConfirmDelete = () => {
+    if (!deleteTarget) return
+    deleteMutation.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
+    })
   }
 
   return (
@@ -174,6 +194,14 @@ function DebatePage() {
                         <Pencil className="h-4 w-4" />
                       </Link>
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteTarget(post)}
+                      aria-label="Eliminar post"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -215,6 +243,28 @@ function DebatePage() {
           </div>
         </div>
       )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar este post?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El post, sus imágenes y comentarios asociados se
+              eliminarán permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onConfirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
