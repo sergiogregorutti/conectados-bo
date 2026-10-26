@@ -14,15 +14,19 @@ function EditPostPage() {
   const updateMutation = useUpdatePost()
 
   const onSubmit = async (data: CreatePostDto & { isActive: boolean }) => {
-    await updateMutation.mutateAsync({
-      id: postId,
-      data: {
-        description: data.description,
-        publishedAt: data.publishedAt,
-        isActive: data.isActive,
-      },
-    })
-    navigate({ to: '/dashboard/debate' })
+    try {
+      await updateMutation.mutateAsync({
+        id: postId,
+        data: {
+          description: data.description,
+          publishedAt: data.publishedAt,
+          isActive: data.isActive,
+        },
+      })
+      navigate({ to: '/dashboard/debate' })
+    } catch {
+      // El error ya se muestra en un toast desde useUpdatePost
+    }
   }
 
   if (isLoading) {

@@ -7,7 +7,7 @@ export interface Ad {
   type: AdType
   mediaType: MediaType
   mediaUrl: string
-  destinationUrl: string
+  destinationUrl: string | null
   startsAt: string // ISO date
   endsAt: string // ISO date
   isActive: boolean
@@ -24,7 +24,7 @@ export interface CreateAdDto {
   type: AdType
   mediaType: MediaType
   file: File
-  destinationUrl: string
+  destinationUrl?: string
   startsAt: string
   endsAt: string
   isActive: boolean
@@ -36,7 +36,7 @@ export interface UpdateAdDto {
   title?: string
   type?: AdType
   mediaType?: MediaType
-  destinationUrl?: string
+  destinationUrl?: string | null
   startsAt?: string
   endsAt?: string
   isActive?: boolean

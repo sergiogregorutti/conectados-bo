@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
+import { DatePicker } from '@/components/ui/date-picker'
 import { MAX_POST_IMAGES, type CreatePostDto, type DebatePost } from '@/types/post'
 import { PostImagesManager } from '@/components/debate/PostImagesManager'
 import { DebatePostPreview } from '@/components/debate/DebatePostPreview'
@@ -215,7 +216,29 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
 
       <div className="space-y-2">
         <Label htmlFor="publishedAt">Fecha de publicación</Label>
-        <Input id="publishedAt" type="datetime-local" {...register('publishedAt')} />
+        <Controller
+          name="publishedAt"
+          control={control}
+          render={({ field }) => {
+            const [datePart, timePart] = field.value.split('T')
+            return (
+              <div className="flex gap-2">
+                <DatePicker
+                  id="publishedAt"
+                  value={datePart}
+                  onChange={(date) => field.onChange(`${date}T${timePart || '00:00'}`)}
+                  className="flex-1"
+                />
+                <Input
+                  type="time"
+                  value={timePart || '00:00'}
+                  onChange={(e) => field.onChange(`${datePart}T${e.target.value}`)}
+                  className="w-28"
+                />
+              </div>
+            )
+          }}
+        />
         <p className="text-sm text-muted-foreground">
           Si la fecha es futura, el post quedará programado
         </p>

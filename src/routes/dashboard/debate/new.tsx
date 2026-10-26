@@ -14,13 +14,17 @@ function NewPostPage() {
 
   const onSubmit = async (data: CreatePostDto & { isActive: boolean }) => {
     const { isActive, ...createData } = data
-    const created = await createMutation.mutateAsync(createData)
-    // El endpoint de creación siempre deja el post activo; si el admin lo
-    // quiere inactivo lo desactivamos con un PATCH.
-    if (!isActive) {
-      await updateMutation.mutateAsync({ id: created.data.id, data: { isActive: false } })
+    try {
+      const created = await createMutation.mutateAsync(createData)
+      // El endpoint de creación siempre deja el post activo; si el admin lo
+      // quiere inactivo lo desactivamos con un PATCH.
+      if (!isActive) {
+        await updateMutation.mutateAsync({ id: created.data.id, data: { isActive: false } })
+      }
+      navigate({ to: '/dashboard/debate' })
+    } catch {
+      // El error ya se muestra en un toast desde useCreatePost/useUpdatePost
     }
-    navigate({ to: '/dashboard/debate' })
   }
 
   return (

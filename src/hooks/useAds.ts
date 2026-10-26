@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { adsService } from '@/services/ads'
+import { getErrorMessage } from '@/lib/errors'
 import type { CreateAdDto, UpdateAdDto, AdsFilters } from '@/types/ad'
 
 const QUERY_KEY = 'ads'
@@ -26,6 +28,10 @@ export function useCreateAd() {
     mutationFn: (data: CreateAdDto) => adsService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Ad creado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo crear el ad'))
     },
   })
 }
@@ -39,6 +45,10 @@ export function useUpdateAd() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] })
+      toast.success('Ad actualizado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo actualizar el ad'))
     },
   })
 }
@@ -50,6 +60,10 @@ export function useDeleteAd() {
     mutationFn: (id: string) => adsService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Ad eliminado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo eliminar el ad'))
     },
   })
 }
@@ -62,6 +76,9 @@ export function useToggleAd() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] })
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo cambiar el estado del ad'))
     },
   })
 }

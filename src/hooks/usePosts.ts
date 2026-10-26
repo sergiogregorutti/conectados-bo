@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { debateService } from '@/services/debate'
+import { getErrorMessage } from '@/lib/errors'
 import type {
   CreatePostDto,
   UpdatePostDto,
@@ -31,6 +33,10 @@ export function useCreatePost() {
     mutationFn: (data: CreatePostDto) => debateService.createPost(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Post creado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo crear el post'))
     },
   })
 }
@@ -43,6 +49,10 @@ export function useUpdatePost() {
       debateService.updatePost(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Post actualizado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo actualizar el post'))
     },
   })
 }
@@ -56,6 +66,9 @@ export function useTogglePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
     },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo cambiar el estado del post'))
+    },
   })
 }
 
@@ -67,6 +80,9 @@ export function useAddPostImages() {
       debateService.addImages(id, files),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudieron subir las imágenes'))
     },
   })
 }
@@ -80,6 +96,9 @@ export function useRemovePostImage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
     },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo eliminar la imagen'))
+    },
   })
 }
 
@@ -92,6 +111,9 @@ export function useReorderPostImages() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
     },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo guardar el orden'))
+    },
   })
 }
 
@@ -102,6 +124,10 @@ export function useDeletePost() {
     mutationFn: (id: string) => debateService.deletePost(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Post eliminado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo eliminar el post'))
     },
   })
 }

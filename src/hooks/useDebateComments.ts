@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { debateService } from '@/services/debate'
+import { getErrorMessage } from '@/lib/errors'
 import type { CommentsFilters } from '@/types/debateComment'
 
 const QUERY_KEY = 'debate-comments'
@@ -18,6 +20,10 @@ export function useRemoveComment() {
     mutationFn: (id: string) => debateService.removeComment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Comentario eliminado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo eliminar el comentario'))
     },
   })
 }
@@ -29,6 +35,10 @@ export function useApproveComment() {
     mutationFn: (id: string) => debateService.approveComment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Comentario aprobado correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo aprobar el comentario'))
     },
   })
 }

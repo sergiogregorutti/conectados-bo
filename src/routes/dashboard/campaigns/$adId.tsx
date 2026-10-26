@@ -14,8 +14,17 @@ function EditAdPage() {
   const updateMutation = useUpdateAd()
 
   const onSubmit = async ({ file: _file, ...rest }: CreateAdDto) => {
-    await updateMutation.mutateAsync({ id: adId, data: rest })
-    navigate({ to: '/dashboard/campaigns' })
+    try {
+      await updateMutation.mutateAsync({
+        id: adId,
+        // destinationUrl siempre se manda explícito (string o null): si se omite
+        // en vez de null, el PATCH lo interpreta como "no tocar" y no se borra.
+        data: { ...rest, destinationUrl: rest.destinationUrl ?? null },
+      })
+      navigate({ to: '/dashboard/campaigns' })
+    } catch {
+      // El error ya se muestra en un toast desde useUpdateAd
+    }
   }
 
   if (isLoading) {

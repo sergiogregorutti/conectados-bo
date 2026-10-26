@@ -29,7 +29,7 @@ export const adsService = {
     formData.append('title', data.title)
     formData.append('type', data.type)
     formData.append('mediaType', data.mediaType)
-    formData.append('destinationUrl', data.destinationUrl)
+    if (data.destinationUrl) formData.append('destinationUrl', data.destinationUrl)
     formData.append('startsAt', data.startsAt)
     formData.append('endsAt', data.endsAt)
     formData.append('isActive', String(data.isActive))

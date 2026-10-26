@@ -1,10 +1,12 @@
 import { useForm, Controller } from 'react-hook-form'
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
   Select,
   SelectContent,
@@ -36,9 +38,9 @@ interface AdFormProps {
 // el banner ocupa el ancho de la card del stack a 100pt de alto (~3.5:1), y el
 // interstitial ocupa toda la pantalla en modo cover (relación vertical ~2:3).
 // Ambos se recortan con "cover", así que lo importante debe ir centrado.
-const RECOMMENDED_SIZE: Record<AdType, string> = {
-  banner: 'Recomendado ~1200×340px (relación 3.5:1, horizontal). Se recorta en modo "cover": centrá el contenido importante.',
-  interstitial: 'Recomendado ~1080×1620px (relación 2:3, vertical, pantalla completa). Se recorta en modo "cover": centrá el contenido importante.',
+const DIMENSION_SPEC: Record<AdType, string> = {
+  banner: '1200×340px (horizontal, relación 3.5:1)',
+  interstitial: '1080×1620px (vertical, relación 2:3, pantalla completa)',
 }
 
 // MP4 (H.264/AAC) es el único formato que reproduce de forma confiable tanto
@@ -46,8 +48,15 @@ const RECOMMENDED_SIZE: Record<AdType, string> = {
 // iOS y MOV es poco confiable en Android según el códec interno. Validado
 // también en el backend (ads.service.ts).
 const ALLOWED_VIDEO_TYPE = 'video/mp4'
-const VIDEO_HELP =
-  'Solo se acepta MP4 (H.264 + audio AAC): es el único formato que reproduce bien tanto en iOS como en Android. El video se descarga en cada impresión, así que conviene un clip corto (~10-15s) y liviano (idealmente menos de 5-8MB).'
+
+function Required() {
+  return (
+    <span className="text-destructive" aria-hidden="true">
+      {' '}
+      *
+    </span>
+  )
+}
 
 function AdMediaPreview({
   src,
@@ -112,7 +121,7 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
           title: defaultValues.title,
           type: defaultValues.type,
           mediaType: defaultValues.mediaType,
-          destinationUrl: defaultValues.destinationUrl,
+          destinationUrl: defaultValues.destinationUrl ?? '',
           startsAt: defaultValues.startsAt.split('T')[0],
           endsAt: defaultValues.endsAt.split('T')[0],
           isActive: defaultValues.isActive,
@@ -134,6 +143,8 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
 
   const mediaType = watch('mediaType')
   const adType = watch('type')
+  const startsAt = watch('startsAt')
+  const endsAt = watch('endsAt')
   const accept = mediaType === 'video' ? ALLOWED_VIDEO_TYPE : 'image/*'
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +166,7 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
     }
     await onSubmit({
       ...values,
+      destinationUrl: values.destinationUrl.trim() || undefined,
       file: selectedFile as File,
       priority: Number(values.priority),
       swipeFrequency: Number(values.swipeFrequency),
@@ -169,8 +181,15 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <p className="text-sm text-muted-foreground">
+        Los campos marcados con <span className="text-destructive">*</span> son obligatorios
+      </p>
+
       <div className="space-y-2">
-        <Label htmlFor="title">Título</Label>
+        <Label htmlFor="title">
+          Título
+          <Required />
+        </Label>
         <Input
           id="title"
           placeholder="Nombre del ad"
@@ -186,7 +205,10 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Tipo de Ad</Label>
+          <Label>
+            Tipo de Ad
+            <Required />
+          </Label>
           <Controller
             name="type"
             control={control}
@@ -205,11 +227,13 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
           <p className="text-sm text-muted-foreground">
             Banner: en el stack. Interstitial: pantalla completa
           </p>
-          <p className="text-sm text-muted-foreground">{RECOMMENDED_SIZE[adType]}</p>
         </div>
 
         <div className="space-y-2">
-          <Label>Tipo de Media</Label>
+          <Label>
+            Tipo de Media
+            <Required />
+          </Label>
           <Controller
             name="mediaType"
             control={control}
@@ -225,14 +249,50 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
               </Select>
             )}
           />
-          {mediaType === 'video' && (
-            <p className="text-sm text-muted-foreground">{VIDEO_HELP}</p>
-          )}
+        </div>
+      </div>
+
+      <div
+        className="flex gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm"
+        role="alert"
+      >
+        <TriangleAlert className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+        <div className="space-y-1.5">
+          <p className="font-semibold text-amber-200">
+            Requisitos obligatorios del archivo — leer antes de subir
+          </p>
+          <ul className="list-disc space-y-1 pl-4 text-amber-100/90">
+            <li>
+              Tamaño: <strong>{DIMENSION_SPEC[adType]}</strong>. La imagen/video se recorta en
+              modo "cover" dentro de ese marco: centrá lo importante, los bordes se pueden perder.
+            </li>
+            {mediaType === 'video' ? (
+              <>
+                <li>
+                  Formato: <strong>únicamente MP4 (códec H.264 + audio AAC)</strong>. Otros
+                  formatos (MOV, WebM, AVI) <strong>no se aceptan</strong> porque no reproducen
+                  bien en iOS y/o Android.
+                </li>
+                <li>
+                  Peso: <strong>máximo 5-8MB</strong>, clip corto de <strong>10-15 segundos</strong>.
+                  El video se descarga entero cada vez que se muestra, así que uno pesado ralentiza
+                  la app a los usuarios.
+                </li>
+              </>
+            ) : (
+              <li>
+                Formato: <strong>JPG, PNG, WebP o GIF</strong>.
+              </li>
+            )}
+          </ul>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Archivo de Media</Label>
+        <Label>
+          Archivo de Media
+          <Required />
+        </Label>
         <input
           ref={fileInputRef}
           type="file"
@@ -294,33 +354,44 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="destinationUrl">URL de Destino</Label>
+        <Label htmlFor="destinationUrl">URL de Destino (opcional)</Label>
         <Input
           id="destinationUrl"
           placeholder="https://..."
           {...register('destinationUrl', {
-            required: 'La URL de destino es requerida',
-            pattern: {
-              value: /^https?:\/\/.+/,
-              message: 'Ingresa una URL válida',
-            },
+            validate: (value) =>
+              !value ||
+              /^https:\/\/.+/.test(value) ||
+              'Debe empezar con https:// (no se acepta http:// ni otro formato)',
           })}
         />
         {errors.destinationUrl && (
           <p className="text-sm text-destructive">{errors.destinationUrl.message}</p>
         )}
         <p className="text-sm text-muted-foreground">
-          URL a la que se redirige al hacer click
+          URL a la que se redirige al hacer click. Debe ser <strong>https</strong> (ej:
+          https://ejemplo.com). Si se deja vacío, el ad no será clickeable.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="startsAt">Fecha de Inicio</Label>
-          <Input
-            id="startsAt"
-            type="date"
-            {...register('startsAt', { required: 'La fecha de inicio es requerida' })}
+          <Label htmlFor="startsAt">
+            Fecha de Inicio
+            <Required />
+          </Label>
+          <Controller
+            name="startsAt"
+            control={control}
+            rules={{ required: 'La fecha de inicio es requerida' }}
+            render={({ field }) => (
+              <DatePicker
+                id="startsAt"
+                value={field.value}
+                onChange={field.onChange}
+                max={endsAt || undefined}
+              />
+            )}
           />
           {errors.startsAt && (
             <p className="text-sm text-destructive">{errors.startsAt.message}</p>
@@ -328,11 +399,22 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="endsAt">Fecha de Fin</Label>
-          <Input
-            id="endsAt"
-            type="date"
-            {...register('endsAt', { required: 'La fecha de fin es requerida' })}
+          <Label htmlFor="endsAt">
+            Fecha de Fin
+            <Required />
+          </Label>
+          <Controller
+            name="endsAt"
+            control={control}
+            rules={{ required: 'La fecha de fin es requerida' }}
+            render={({ field }) => (
+              <DatePicker
+                id="endsAt"
+                value={field.value}
+                onChange={field.onChange}
+                min={startsAt || undefined}
+              />
+            )}
           />
           {errors.endsAt && (
             <p className="text-sm text-destructive">{errors.endsAt.message}</p>
@@ -342,7 +424,10 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="priority">Prioridad</Label>
+          <Label htmlFor="priority">
+            Prioridad
+            <Required />
+          </Label>
           <Input
             id="priority"
             type="number"
@@ -363,7 +448,10 @@ export function AdForm({ defaultValues, onSubmit, isLoading }: AdFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="swipeFrequency">Frecuencia (swipes)</Label>
+          <Label htmlFor="swipeFrequency">
+            Frecuencia (swipes)
+            <Required />
+          </Label>
           <Input
             id="swipeFrequency"
             type="number"

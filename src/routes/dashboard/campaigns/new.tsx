@@ -12,8 +12,12 @@ function NewAdPage() {
   const createMutation = useCreateAd()
 
   const onSubmit = async (data: CreateAdDto) => {
-    await createMutation.mutateAsync(data)
-    navigate({ to: '/dashboard/campaigns' })
+    try {
+      await createMutation.mutateAsync(data)
+      navigate({ to: '/dashboard/campaigns' })
+    } catch {
+      // El error ya se muestra en un toast desde useCreateAd
+    }
   }
 
   return (

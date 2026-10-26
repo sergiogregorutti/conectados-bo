@@ -234,10 +234,20 @@ function AdsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" asChild>
-                        <a href={ad.destinationUrl} target="_blank" rel="noopener noreferrer">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={!ad.destinationUrl}
+                        asChild={!!ad.destinationUrl}
+                        title={ad.destinationUrl ? undefined : 'Este ad no tiene URL de destino'}
+                      >
+                        {ad.destinationUrl ? (
+                          <a href={ad.destinationUrl} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        ) : (
                           <ExternalLink className="h-4 w-4" />
-                        </a>
+                        )}
                       </Button>
                       <Button variant="ghost" size="icon" asChild>
                         <Link to="/dashboard/campaigns/$adId" params={{ adId: ad.id }}>
