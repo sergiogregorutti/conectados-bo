@@ -88,11 +88,16 @@ function AdsPage() {
     setPage(1)
   }
 
+  // startsAt/endsAt son fechas sin hora, guardadas como medianoche UTC del día
+  // elegido (ver AdForm). Si se formatean con la zona horaria local, en husos
+  // negativos (ej. Argentina, UTC-3) se muestran un día antes del valor real.
+  // timeZone: 'UTC' evita ese corrimiento.
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
+      timeZone: 'UTC',
     })
   }
 
