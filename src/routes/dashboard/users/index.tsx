@@ -1,14 +1,18 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
+  Ban,
   ChevronLeft,
   ChevronRight,
+  Crown,
   MoreHorizontal,
   RefreshCw,
   ShieldCheck,
   ShieldOff,
 } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
+import { GrantPremiumDialog } from '@/components/users/GrantPremiumDialog'
+import { RevokePremiumDialog } from '@/components/users/RevokePremiumDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -234,6 +238,8 @@ function UsersPage() {
 
 function UserRow({ user }: { user: User }) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [grantOpen, setGrantOpen] = useState(false)
+  const [revokeOpen, setRevokeOpen] = useState(false)
   const initials = (user.name ?? '?')
     .split(' ')
     .map((part) => part[0])
@@ -243,6 +249,10 @@ function UserRow({ user }: { user: User }) {
     .toUpperCase()
 
   const action = user.disabled ? 'enable' : 'disable'
+  const hasManualPremium = user.currentProvider === 'MANUAL'
+  // Si ya tiene una suscripción paga real (Apple/Google) activa, el backend
+  // rechaza el grant con 409: ni mostramos la opción.
+  const hasPaidSubscription = user.isPremium && !!user.currentProvider && !hasManualPremium
 
   return (
     <TableRow>
@@ -338,6 +348,18 @@ function UserRow({ user }: { user: User }) {
                 Deshabilitar
               </DropdownMenuItem>
             )}
+            {!hasPaidSubscription && (
+              <DropdownMenuItem onSelect={() => setGrantOpen(true)}>
+                <Crown className="h-4 w-4" />
+                {hasManualPremium ? 'Cambiar fecha de premium' : 'Otorgar premium manual'}
+              </DropdownMenuItem>
+            )}
+            {hasManualPremium && (
+              <DropdownMenuItem variant="destructive" onSelect={() => setRevokeOpen(true)}>
+                <Ban className="h-4 w-4" />
+                Cancelar premium manual
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         <UserStatusDialog
@@ -346,6 +368,18 @@ function UserRow({ user }: { user: User }) {
           action={action}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
+        />
+        <GrantPremiumDialog
+          userId={user.id}
+          userName={user.name}
+          open={grantOpen}
+          onOpenChange={setGrantOpen}
+        />
+        <RevokePremiumDialog
+          userId={user.id}
+          userName={user.name}
+          open={revokeOpen}
+          onOpenChange={setRevokeOpen}
         />
       </TableCell>
     </TableRow>

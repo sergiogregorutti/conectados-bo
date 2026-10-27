@@ -3,8 +3,10 @@ import { isAxiosError } from 'axios'
 import { useState } from 'react'
 import {
   ArrowLeft,
+  Ban,
   Calendar,
   CheckCircle2,
+  Crown,
   ShieldCheck,
   ShieldOff,
   Ticket,
@@ -12,6 +14,8 @@ import {
 } from 'lucide-react'
 import { useUser } from '@/hooks/useUsers'
 import { UserStatusDialog } from '@/components/users/UserStatusDialog'
+import { GrantPremiumDialog } from '@/components/users/GrantPremiumDialog'
+import { RevokePremiumDialog } from '@/components/users/RevokePremiumDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -105,6 +109,8 @@ function UserDetailPage() {
 
 function UserHeader({ user }: { user: UserDetail }) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [grantOpen, setGrantOpen] = useState(false)
+  const [revokeOpen, setRevokeOpen] = useState(false)
   const initials = (user.name ?? '?')
     .split(' ')
     .map((part) => part[0])
@@ -114,6 +120,11 @@ function UserHeader({ user }: { user: UserDetail }) {
     .toUpperCase()
 
   const action = user.disabled ? 'enable' : 'disable'
+  const hasManualPremium = user.currentProvider === 'MANUAL'
+  const hasPaidSubscription = user.isPremium && !!user.currentProvider && !hasManualPremium
+  // Las subs MANUAL siempre guardan plan "MONTHLY" aunque el grant sea de 2
+  // meses o una fecha custom: no es un dato real, no lo mostramos.
+  const planLabel = hasManualPremium ? '—' : (user.currentPlan ?? '—')
 
   return (
     <Card>
@@ -145,7 +156,7 @@ function UserHeader({ user }: { user: UserDetail }) {
         </div>
         <Separator orientation="vertical" className="hidden h-20 md:block" />
         <div className="grid gap-2 text-sm">
-          <InfoLine label="Plan" value={user.currentPlan ?? '—'} />
+          <InfoLine label="Plan" value={planLabel} />
           <InfoLine label="Provider" value={user.currentProvider ?? '—'} />
           <InfoLine label="Vencimiento premium" value={formatDate(user.premiumUntil)} />
           <InfoLine label="Registrado" value={formatDate(user.createdAt)} />
@@ -153,18 +164,26 @@ function UserHeader({ user }: { user: UserDetail }) {
             <InfoLine label="Deshabilitado el" value={formatDate(user.disabledAt)} />
           )}
         </div>
-        <div className="w-full md:w-auto md:ml-auto">
+        <div className="flex w-full flex-wrap gap-2 md:w-auto md:ml-auto">
+          {!hasPaidSubscription && (
+            <Button variant="outline" onClick={() => setGrantOpen(true)}>
+              <Crown className="mr-2 h-4 w-4" />
+              {hasManualPremium ? 'Cambiar fecha de premium' : 'Otorgar premium manual'}
+            </Button>
+          )}
+          {hasManualPremium && (
+            <Button variant="outline" onClick={() => setRevokeOpen(true)}>
+              <Ban className="mr-2 h-4 w-4" />
+              Cancelar premium manual
+            </Button>
+          )}
           {user.disabled ? (
-            <Button onClick={() => setDialogOpen(true)} className="w-full md:w-auto">
+            <Button onClick={() => setDialogOpen(true)}>
               <ShieldCheck className="mr-2 h-4 w-4" />
               Habilitar
             </Button>
           ) : (
-            <Button
-              variant="destructive"
-              onClick={() => setDialogOpen(true)}
-              className="w-full md:w-auto"
-            >
+            <Button variant="destructive" onClick={() => setDialogOpen(true)}>
               <ShieldOff className="mr-2 h-4 w-4" />
               Deshabilitar
             </Button>
@@ -177,6 +196,18 @@ function UserHeader({ user }: { user: UserDetail }) {
         action={action}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+      />
+      <GrantPremiumDialog
+        userId={user.id}
+        userName={user.name}
+        open={grantOpen}
+        onOpenChange={setGrantOpen}
+      />
+      <RevokePremiumDialog
+        userId={user.id}
+        userName={user.name}
+        open={revokeOpen}
+        onOpenChange={setRevokeOpen}
       />
     </Card>
   )
@@ -357,8 +388,14 @@ function ModerationSection({ log }: { log: ModerationLogEntry[] }) {
             {log.map((entry, idx) => (
               <li key={idx} className="flex gap-3">
                 <div className="mt-1">
-                  {entry.action === 'DISABLE' ? (
-                    <ShieldOff className="h-4 w-4 text-destructive" />
+                  {entry.action === 'DISABLE' || entry.action === 'REVOKE_PREMIUM' ? (
+                    entry.action === 'DISABLE' ? (
+                      <ShieldOff className="h-4 w-4 text-destructive" />
+                    ) : (
+                      <Ban className="h-4 w-4 text-destructive" />
+                    )
+                  ) : entry.action === 'GRANT_PREMIUM' ? (
+                    <Crown className="h-4 w-4 text-primary" />
                   ) : (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                   )}
@@ -366,7 +403,11 @@ function ModerationSection({ log }: { log: ModerationLogEntry[] }) {
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant={entry.action === 'DISABLE' ? 'destructive' : 'outline'}
+                      variant={
+                        entry.action === 'DISABLE' || entry.action === 'REVOKE_PREMIUM'
+                          ? 'destructive'
+                          : 'outline'
+                      }
                     >
                       {entry.action}
                     </Badge>

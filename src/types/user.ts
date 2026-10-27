@@ -54,10 +54,25 @@ export interface CouponRedemption {
 }
 
 export interface ModerationLogEntry {
-  action: 'DISABLE' | 'ENABLE'
+  action: 'DISABLE' | 'ENABLE' | 'GRANT_PREMIUM' | 'REVOKE_PREMIUM'
   adminId: string
   reason: string | null
   createdAt: string
+}
+
+export interface GrantPremiumDto {
+  expiresAt: string // ISO date-time, debe ser futura
+  note?: string // max 500
+}
+
+export interface RevokePremiumDto {
+  reason?: string // max 500
+}
+
+export interface PremiumActionResponse {
+  id: string
+  isPremium: boolean
+  premiumUntil: string | null
 }
 
 export interface UserDetail extends User {

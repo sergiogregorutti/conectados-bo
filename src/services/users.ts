@@ -1,5 +1,12 @@
 import { api } from '@/lib/axios'
-import type { UserDetail, UsersFilters, UsersListResponse } from '@/types/user'
+import type {
+  GrantPremiumDto,
+  PremiumActionResponse,
+  RevokePremiumDto,
+  UserDetail,
+  UsersFilters,
+  UsersListResponse,
+} from '@/types/user'
 
 export type UserStatusAction = 'enable' | 'disable'
 
@@ -34,6 +41,16 @@ export const usersService = {
   ): Promise<UserStatusResponse> {
     const body = action === 'disable' && reason ? { reason } : {}
     const response = await api.post<UserStatusResponse>(`/admin/users/${id}/${action}`, body)
+    return response.data
+  },
+
+  async grantPremium(id: string, data: GrantPremiumDto): Promise<PremiumActionResponse> {
+    const response = await api.post<PremiumActionResponse>(`/admin/users/${id}/premium/grant`, data)
+    return response.data
+  },
+
+  async revokePremium(id: string, data: RevokePremiumDto): Promise<PremiumActionResponse> {
+    const response = await api.post<PremiumActionResponse>(`/admin/users/${id}/premium/revoke`, data)
     return response.data
   },
 }

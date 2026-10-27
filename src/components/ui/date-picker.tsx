@@ -2,6 +2,7 @@ import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { parseLocalDate, toIsoDate } from "@/lib/date"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -14,22 +15,6 @@ interface DatePickerProps {
   min?: string // "YYYY-MM-DD", límite inferior habilitado
   max?: string // "YYYY-MM-DD", límite superior habilitado
   className?: string
-}
-
-// Parsea "YYYY-MM-DD" como fecha local (no UTC): evita que new Date("2026-10-24")
-// se interprete como medianoche UTC y aparezca un día antes en husos negativos.
-function parseLocalDate(value?: string): Date | undefined {
-  if (!value) return undefined
-  const [year, month, day] = value.split("-").map(Number)
-  if (!year || !month || !day) return undefined
-  return new Date(year, month - 1, day)
-}
-
-function toIsoDate(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
 }
 
 export function DatePicker({
