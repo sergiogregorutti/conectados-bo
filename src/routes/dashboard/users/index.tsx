@@ -11,6 +11,7 @@ import {
   ShieldOff,
 } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
+import { getPremiumStatus } from '@/lib/premium'
 import { GrantPremiumDialog } from '@/components/users/GrantPremiumDialog'
 import { RevokePremiumDialog } from '@/components/users/RevokePremiumDialog'
 import { Button } from '@/components/ui/button'
@@ -249,10 +250,14 @@ function UserRow({ user }: { user: User }) {
     .toUpperCase()
 
   const action = user.disabled ? 'enable' : 'disable'
-  const hasManualPremium = user.currentProvider === 'MANUAL'
+  const premiumStatus = getPremiumStatus(user)
+  // Si ya venció, no importa que currentProvider todavía diga MANUAL (el
+  // backend puede tardar en limpiarlo): no hay nada activo que cancelar.
+  const hasManualPremium = premiumStatus === 'active' && user.currentProvider === 'MANUAL'
   // Si ya tiene una suscripción paga real (Apple/Google) activa, el backend
   // rechaza el grant con 409: ni mostramos la opción.
-  const hasPaidSubscription = user.isPremium && !!user.currentProvider && !hasManualPremium
+  const hasPaidSubscription =
+    premiumStatus === 'active' && !!user.currentProvider && !hasManualPremium
 
   return (
     <TableRow>
@@ -270,14 +275,15 @@ function UserRow({ user }: { user: User }) {
             <p className="font-medium truncate group-hover:underline">
               {user.name ?? 'Sin nombre'}
             </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {user.email ?? user.id}
-            </p>
+            <p className="text-xs text-muted-foreground truncate">{user.id}</p>
+            {user.email && (
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            )}
           </div>
         </Link>
       </TableCell>
       <TableCell>
-        {user.isPremium ? (
+        {premiumStatus === 'active' && (
           <div className="flex flex-col gap-1">
             <Badge>Premium</Badge>
             {user.currentPlan && (
@@ -287,9 +293,13 @@ function UserRow({ user }: { user: User }) {
               </span>
             )}
           </div>
-        ) : (
-          <Badge variant="secondary">Free</Badge>
         )}
+        {premiumStatus === 'expired' && (
+          <Badge variant="outline" className="text-muted-foreground">
+            Fue premium
+          </Badge>
+        )}
+        {premiumStatus === 'free' && <Badge variant="secondary">Free</Badge>}
       </TableCell>
       <TableCell>
         <span className="text-sm">{formatDate(user.premiumUntil)}</span>

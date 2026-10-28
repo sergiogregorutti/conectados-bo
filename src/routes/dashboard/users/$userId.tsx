@@ -13,6 +13,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { useUser } from '@/hooks/useUsers'
+import { getPremiumStatus } from '@/lib/premium'
 import { UserStatusDialog } from '@/components/users/UserStatusDialog'
 import { GrantPremiumDialog } from '@/components/users/GrantPremiumDialog'
 import { RevokePremiumDialog } from '@/components/users/RevokePremiumDialog'
@@ -120,8 +121,12 @@ function UserHeader({ user }: { user: UserDetail }) {
     .toUpperCase()
 
   const action = user.disabled ? 'enable' : 'disable'
-  const hasManualPremium = user.currentProvider === 'MANUAL'
-  const hasPaidSubscription = user.isPremium && !!user.currentProvider && !hasManualPremium
+  const premiumStatus = getPremiumStatus(user)
+  // Si ya venció, no importa que currentProvider todavía diga MANUAL (el
+  // backend puede tardar en limpiarlo): no hay nada activo que cancelar.
+  const hasManualPremium = premiumStatus === 'active' && user.currentProvider === 'MANUAL'
+  const hasPaidSubscription =
+    premiumStatus === 'active' && !!user.currentProvider && !hasManualPremium
   // Las subs MANUAL siempre guardan plan "MONTHLY" aunque el grant sea de 2
   // meses o una fecha custom: no es un dato real, no lo mostramos.
   const planLabel = hasManualPremium ? '—' : (user.currentPlan ?? '—')
@@ -136,7 +141,13 @@ function UserHeader({ user }: { user: UserDetail }) {
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold">{user.name ?? 'Sin nombre'}</h1>
-            {user.isPremium ? <Badge>Premium</Badge> : <Badge variant="secondary">Free</Badge>}
+            {premiumStatus === 'active' && <Badge>Premium</Badge>}
+            {premiumStatus === 'expired' && (
+              <Badge variant="outline" className="text-muted-foreground">
+                Fue premium
+              </Badge>
+            )}
+            {premiumStatus === 'free' && <Badge variant="secondary">Free</Badge>}
             {user.disabled ? (
               <Badge variant="destructive" className="gap-1">
                 <ShieldOff className="h-3 w-3" />
@@ -150,9 +161,7 @@ function UserHeader({ user }: { user: UserDetail }) {
             )}
           </div>
           <p className="text-sm text-muted-foreground font-mono break-all">{user.id}</p>
-          {user.email && (
-            <p className="text-sm text-muted-foreground">{user.email}</p>
-          )}
+          <p className="text-sm text-muted-foreground">{user.email ?? 'Sin email'}</p>
         </div>
         <Separator orientation="vertical" className="hidden h-20 md:block" />
         <div className="grid gap-2 text-sm">
