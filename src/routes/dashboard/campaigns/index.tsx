@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { z } from 'zod'
 import { Plus, Pencil, Trash2, ExternalLink, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
 import { useAds, useDeleteAd, useToggleAd } from '@/hooks/useAds'
 import { Button } from '@/components/ui/button'
@@ -33,23 +34,34 @@ import {
 } from '@/components/ui/alert-dialog'
 import type { Ad, AdType } from '@/types/ad'
 
+// Filtros y paginación viven en la URL: si no, al navegar a otra pantalla (ej.
+// editar un ad) y volver con "atrás", se pierden la página y los filtros.
+const adsSearchSchema = z.object({
+  page: z.coerce.number().int().min(1).catch(1),
+  search: z.string().catch(''),
+  type: z.enum(['all', 'banner', 'interstitial']).catch('all'),
+  status: z.enum(['all', 'active', 'inactive']).catch('all'),
+})
+
 export const Route = createFileRoute('/dashboard/campaigns/')({
+  validateSearch: (search) => adsSearchSchema.parse(search),
   component: AdsPage,
 })
 
 const ITEMS_PER_PAGE = 10
 
 function AdsPage() {
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState<AdType | 'all'>('all')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const search = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const { page } = search
+  const typeFilter = search.type
+  const statusFilter = search.status
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const { data, isLoading, refetch, isFetching } = useAds({
     page,
     limit: ITEMS_PER_PAGE,
-    search: search || undefined,
+    search: search.search || undefined,
     type: typeFilter === 'all' ? undefined : typeFilter,
     isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
   })
@@ -72,20 +84,22 @@ function AdsPage() {
     }
   }
 
-  // Reset page when filters change
+  const setPage = (next: number) => {
+    navigate({ search: (prev) => ({ ...prev, page: next }) })
+  }
+
+  // Los filtros resetean a página 1 y usan replace (no empujan historial
+  // propio): solo la paginación agrega una entrada nueva al historial.
   const handleSearchChange = (value: string) => {
-    setSearch(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, search: value, page: 1 }), replace: true })
   }
 
   const handleTypeFilterChange = (value: AdType | 'all') => {
-    setTypeFilter(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, type: value, page: 1 }), replace: true })
   }
 
   const handleStatusFilterChange = (value: 'all' | 'active' | 'inactive') => {
-    setStatusFilter(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, status: value, page: 1 }), replace: true })
   }
 
   // startsAt/endsAt son fechas sin hora, guardadas como medianoche UTC del día
@@ -136,7 +150,7 @@ function AdsPage() {
       <div className="flex flex-wrap gap-4">
         <Input
           placeholder="Buscar por título..."
-          value={search}
+          value={search.search}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="max-w-xs"
         />

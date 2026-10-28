@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { z } from 'zod'
 import { ChevronLeft, ChevronRight, Plus, RefreshCw, X } from 'lucide-react'
 import { useCancelNotification, useNotifications } from '@/hooks/useNotifications'
 import { Button } from '@/components/ui/button'
@@ -35,7 +36,18 @@ import type {
   NotificationsFilterType,
 } from '@/types/notification'
 
+// Filtros y paginación viven en la URL: si no, al navegar al detalle de un
+// envío y volver con "atrás", se pierden la página y los filtros.
+const notificationsSearchSchema = z.object({
+  page: z.coerce.number().int().min(1).catch(1),
+  status: z
+    .enum(['all', 'SCHEDULED', 'SENDING', 'SENT', 'CANCELED', 'FAILED'])
+    .catch('all'),
+  type: z.enum(['all', 'ANNOUNCEMENT', 'REMINDER', 'DEBATE_POST']).catch('all'),
+})
+
 export const Route = createFileRoute('/dashboard/notifications/')({
+  validateSearch: (search) => notificationsSearchSchema.parse(search),
   component: NotificationsPage,
 })
 
@@ -48,9 +60,11 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 function NotificationsPage() {
-  const [page, setPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState<NotificationsFilterStatus>('all')
-  const [typeFilter, setTypeFilter] = useState<NotificationsFilterType>('all')
+  const search = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const { page } = search
+  const statusFilter: NotificationsFilterStatus = search.status
+  const typeFilter: NotificationsFilterType = search.type
   const [cancelId, setCancelId] = useState<string | null>(null)
 
   const { data, isLoading, refetch, isFetching } = useNotifications({
@@ -65,14 +79,16 @@ function NotificationsPage() {
   const notifications = data?.notifications ?? []
   const pagination = data?.pagination
 
+  const setPage = (next: number) => {
+    navigate({ search: (prev) => ({ ...prev, page: next }) })
+  }
+
   const handleStatusChange = (v: NotificationsFilterStatus) => {
-    setStatusFilter(v)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, status: v, page: 1 }), replace: true })
   }
 
   const handleTypeChange = (v: NotificationsFilterType) => {
-    setTypeFilter(v)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, type: v, page: 1 }), replace: true })
   }
 
   const onConfirmCancel = () => {

@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { z } from 'zod'
 import {
   Ban,
   ChevronLeft,
@@ -47,25 +48,37 @@ import type {
   UserStatusFilter,
 } from '@/types/user'
 
-export const Route = createFileRoute('/dashboard/users/')({
-  component: UsersPage,
-})
-
 const ITEMS_PER_PAGE = 20
 type PremiumFilter = 'all' | 'premium' | 'free'
 
+// Filtros y paginación viven en la URL (no en useState): si no, al navegar a
+// otra pantalla (ej. el detalle de un user) y volver con el botón "atrás" del
+// navegador, se pierden la página y los filtros que tenía elegidos el admin.
+const usersSearchSchema = z.object({
+  page: z.coerce.number().int().min(1).catch(1),
+  search: z.string().catch(''),
+  premium: z.enum(['all', 'premium', 'free']).catch('all'),
+  status: z.enum(['active', 'disabled', 'all']).catch('all'),
+  sortBy: z.enum(['createdAt', 'premiumUntil', 'totalSpent']).catch('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).catch('desc'),
+})
+
+export const Route = createFileRoute('/dashboard/users/')({
+  validateSearch: (search) => usersSearchSchema.parse(search),
+  component: UsersPage,
+})
+
 function UsersPage() {
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [premiumFilter, setPremiumFilter] = useState<PremiumFilter>('all')
-  const [statusFilter, setStatusFilter] = useState<UserStatusFilter>('all')
-  const [sortBy, setSortBy] = useState<UserSortBy>('createdAt')
-  const [sortOrder, setSortOrder] = useState<UserSortOrder>('desc')
+  const search = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const { page, sortBy, sortOrder } = search
+  const premiumFilter: PremiumFilter = search.premium
+  const statusFilter: UserStatusFilter = search.status
 
   const { data, isLoading, refetch, isFetching } = useUsers({
     page,
     limit: ITEMS_PER_PAGE,
-    search: search || undefined,
+    search: search.search || undefined,
     premium:
       premiumFilter === 'all' ? undefined : premiumFilter === 'premium',
     status: statusFilter,
@@ -76,29 +89,31 @@ function UsersPage() {
   const users = data?.users ?? []
   const pagination = data?.pagination
 
+  const setPage = (next: number) => {
+    navigate({ search: (prev) => ({ ...prev, page: next }) })
+  }
+
+  // Los filtros resetean a página 1 y no acumulan historial propio (replace):
+  // solo la paginación empuja una entrada nueva, así "atrás" avanza filtro por
+  // filtro en vez de letra por letra en el buscador.
   const handleSearchChange = (value: string) => {
-    setSearch(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, search: value, page: 1 }), replace: true })
   }
 
   const handlePremiumChange = (value: PremiumFilter) => {
-    setPremiumFilter(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, premium: value, page: 1 }), replace: true })
   }
 
   const handleStatusChange = (value: UserStatusFilter) => {
-    setStatusFilter(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, status: value, page: 1 }), replace: true })
   }
 
   const handleSortByChange = (value: UserSortBy) => {
-    setSortBy(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, sortBy: value, page: 1 }), replace: true })
   }
 
   const handleSortOrderChange = (value: UserSortOrder) => {
-    setSortOrder(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, sortOrder: value, page: 1 }), replace: true })
   }
 
   return (
@@ -119,7 +134,7 @@ function UsersPage() {
       <div className="flex flex-wrap gap-4">
         <Input
           placeholder="Buscar por nombre..."
-          value={search}
+          value={search.search}
           onChange={(e) => handleSearchChange(e.target.value)}
           className="max-w-xs"
         />
@@ -204,7 +219,7 @@ function UsersPage() {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Mostrando {((pagination.page - 1) * pagination.limit) + 1} a{' '}
+            Mostrando {(pagination.page - 1) * pagination.limit + 1} a{' '}
             {Math.min(pagination.page * pagination.limit, pagination.total)} de{' '}
             {pagination.total} resultados
           </p>

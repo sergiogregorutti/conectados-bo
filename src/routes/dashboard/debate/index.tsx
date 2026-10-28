@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
+import { z } from 'zod'
 import {
   Plus,
   Pencil,
@@ -41,15 +42,25 @@ import {
 } from '@/components/ui/alert-dialog'
 import type { DebatePost, PostStatus } from '@/types/post'
 
+// Filtros y paginación viven en la URL: si no, al navegar a otra pantalla (ej.
+// editar un post) y volver con "atrás", se pierden la página y el filtro.
+const debateSearchSchema = z.object({
+  page: z.coerce.number().int().min(1).catch(1),
+  status: z.enum(['all', 'published', 'scheduled', 'inactive']).catch('all'),
+})
+
 export const Route = createFileRoute('/dashboard/debate/')({
+  validateSearch: (search) => debateSearchSchema.parse(search),
   component: DebatePage,
 })
 
 const ITEMS_PER_PAGE = 20
 
 function DebatePage() {
-  const [page, setPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState<PostStatus>('all')
+  const search = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const { page } = search
+  const statusFilter: PostStatus = search.status
 
   const { data, isLoading, refetch, isFetching } = usePosts({
     page,
@@ -64,9 +75,12 @@ function DebatePage() {
   const posts = data?.data ?? []
   const pagination = data?.pagination
 
+  const setPage = (next: number) => {
+    navigate({ search: (prev) => ({ ...prev, page: next }) })
+  }
+
   const handleStatusChange = (value: PostStatus) => {
-    setStatusFilter(value)
-    setPage(1)
+    navigate({ search: (prev) => ({ ...prev, status: value, page: 1 }), replace: true })
   }
 
   const onToggle = (post: DebatePost) => {
@@ -270,10 +284,11 @@ function DebatePage() {
 }
 
 function StatusBadge({ post }: { post: DebatePost }) {
+  const now = useMemo(() => new Date(), [])
   if (!post.isActive) {
     return <Badge variant="secondary">Inactivo</Badge>
   }
-  if (new Date(post.publishedAt).getTime() > Date.now()) {
+  if (new Date(post.publishedAt).getTime() > now.getTime()) {
     return <Badge variant="outline">Programado</Badge>
   }
   return <Badge>Publicado</Badge>
