@@ -15,9 +15,17 @@ function NewPostPage() {
   const onSubmit = async (data: CreatePostDto & { isActive: boolean }) => {
     const { isActive, ...createData } = data
     try {
-      const created = await createMutation.mutateAsync(createData)
-      // El endpoint de creación siempre deja el post activo; si el admin lo
-      // quiere inactivo lo desactivamos con un PATCH.
+      // El endpoint de creación siempre deja el post activo (sin importar el
+      // valor de "Activo" del form); si el admin lo quiere como borrador lo
+      // desactivamos después con un PATCH. Por eso, si va a quedar en
+      // borrador, NO mandamos notify=true en el create: el post queda activo
+      // unos milisegundos antes del PATCH, y el backend rechaza (400) poner
+      // notify en un post que ya está "visible" en ese instante. El admin
+      // vuelve a decidir el aviso cuando más adelante active el borrador.
+      const created = await createMutation.mutateAsync({
+        ...createData,
+        notify: isActive ? createData.notify : undefined,
+      })
       if (!isActive) {
         await updateMutation.mutateAsync({ id: created.data.id, data: { isActive: false } })
       }

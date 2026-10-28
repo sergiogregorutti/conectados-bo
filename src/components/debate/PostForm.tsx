@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { MAX_POST_IMAGES, type CreatePostDto, type DebatePost } from '@/types/post'
 import { PostImagesManager } from '@/components/debate/PostImagesManager'
@@ -16,6 +17,7 @@ interface PostFormValues {
   description: string
   publishedAt: string
   isActive: boolean
+  notify: boolean
 }
 
 interface PostFormProps {
@@ -46,8 +48,18 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
       description: defaultValues?.description ?? '',
       publishedAt: toLocalInput(defaultValues?.publishedAt),
       isActive: defaultValues?.isActive ?? true,
+      notify: defaultValues?.notifyOnPublish ?? false,
     },
   })
+
+  // El check de "avisar" solo se ofrece mientras el post no es visible para
+  // los usuarios y no se avisó todavía (editar un post ya visible nunca
+  // dispara un envío — lo rechaza el backend con 400).
+  const now = useMemo(() => new Date(), [])
+  const isPostAlreadyVisible = (post: DebatePost) =>
+    post.isActive && new Date(post.publishedAt).getTime() <= now.getTime()
+  const canOfferNotify =
+    !defaultValues || (!isPostAlreadyVisible(defaultValues) && !defaultValues.notifiedAt)
 
   const previewUrls = useMemo(
     () => selectedFiles.map((file) => URL.createObjectURL(file)),
@@ -102,6 +114,7 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
         ? new Date(values.publishedAt).toISOString()
         : undefined,
       isActive: values.isActive,
+      notify: canOfferNotify ? values.notify : undefined,
     })
   }
 
@@ -259,6 +272,36 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
           )}
         />
       </div>
+
+      {canOfferNotify ? (
+        <label className="flex items-start gap-2 text-sm">
+          <Controller
+            name="notify"
+            control={control}
+            render={({ field }) => (
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={(v) => field.onChange(v === true)}
+                className="mt-0.5"
+              />
+            )}
+          />
+          <span>
+            Avisar a los usuarios al publicar
+            <span className="block text-xs text-muted-foreground">
+              Envía una notificación (push y web) cuando el post se vuelva visible. Si lo
+              guardás como borrador ahora, se te va a volver a preguntar cuando lo actives.
+            </span>
+          </span>
+        </label>
+      ) : (
+        defaultValues && (
+          <p className="text-xs text-muted-foreground">
+            Este post ya es visible{defaultValues.notifiedAt ? ' y ya se avisó' : ''}: no se puede
+            cambiar el aviso de publicación.
+          </p>
+        )
+      )}
 
       <div className="flex gap-4">
         <Button type="submit" disabled={isLoading}>

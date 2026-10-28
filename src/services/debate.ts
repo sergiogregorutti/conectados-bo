@@ -28,6 +28,7 @@ export const debateService = {
     // expone los fields una vez consumido el último archivo, así que si van después no llegan.
     formData.append('description', data.description)
     if (data.publishedAt) formData.append('publishedAt', data.publishedAt)
+    if (data.notify !== undefined) formData.append('notify', String(data.notify))
     // El orden de aparición de "images" en el FormData define el `order` de cada imagen:
     // no existe un campo de orden separado.
     for (const file of data.files) {
