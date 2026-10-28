@@ -44,13 +44,20 @@ import type { DebatePost, PostStatus } from '@/types/post'
 
 // Filtros y paginación viven en la URL: si no, al navegar a otra pantalla (ej.
 // editar un post) y volver con "atrás", se pierden la página y el filtro.
+// .default() (no solo .catch()) es necesario para que TanStack Router sepa,
+// a nivel de tipos, que estos campos son opcionales al navegar hacia esta
+// ruta (ej. <Link to="/dashboard/debate"> sin pasar `search`); .catch() de
+// más protege contra valores inválidos en la URL (ej. ?page=abc).
 const debateSearchSchema = z.object({
-  page: z.coerce.number().int().min(1).catch(1),
-  status: z.enum(['all', 'published', 'scheduled', 'inactive']).catch('all'),
+  page: z.coerce.number().int().min(1).default(1).catch(1),
+  status: z
+    .enum(['all', 'published', 'scheduled', 'inactive'])
+    .default('all')
+    .catch('all'),
 })
 
 export const Route = createFileRoute('/dashboard/debate/')({
-  validateSearch: (search) => debateSearchSchema.parse(search),
+  validateSearch: debateSearchSchema,
   component: DebatePage,
 })
 

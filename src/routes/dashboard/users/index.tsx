@@ -54,17 +54,24 @@ type PremiumFilter = 'all' | 'premium' | 'free'
 // Filtros y paginación viven en la URL (no en useState): si no, al navegar a
 // otra pantalla (ej. el detalle de un user) y volver con el botón "atrás" del
 // navegador, se pierden la página y los filtros que tenía elegidos el admin.
+// .default() (no solo .catch()) es necesario para que TanStack Router sepa,
+// a nivel de tipos, que estos campos son opcionales al navegar hacia esta
+// ruta (ej. <Link to="/dashboard/users"> sin pasar `search`); .catch() de
+// más protege además contra valores inválidos en la URL (ej. ?page=abc).
 const usersSearchSchema = z.object({
-  page: z.coerce.number().int().min(1).catch(1),
-  search: z.string().catch(''),
-  premium: z.enum(['all', 'premium', 'free']).catch('all'),
-  status: z.enum(['active', 'disabled', 'all']).catch('all'),
-  sortBy: z.enum(['createdAt', 'premiumUntil', 'totalSpent']).catch('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).catch('desc'),
+  page: z.coerce.number().int().min(1).default(1).catch(1),
+  search: z.string().default('').catch(''),
+  premium: z.enum(['all', 'premium', 'free']).default('all').catch('all'),
+  status: z.enum(['active', 'disabled', 'all']).default('all').catch('all'),
+  sortBy: z
+    .enum(['createdAt', 'premiumUntil', 'totalSpent'])
+    .default('createdAt')
+    .catch('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc').catch('desc'),
 })
 
 export const Route = createFileRoute('/dashboard/users/')({
-  validateSearch: (search) => usersSearchSchema.parse(search),
+  validateSearch: usersSearchSchema,
   component: UsersPage,
 })
 

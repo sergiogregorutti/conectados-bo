@@ -36,15 +36,19 @@ import type { Ad, AdType } from '@/types/ad'
 
 // Filtros y paginación viven en la URL: si no, al navegar a otra pantalla (ej.
 // editar un ad) y volver con "atrás", se pierden la página y los filtros.
+// .default() (no solo .catch()) es necesario para que TanStack Router sepa,
+// a nivel de tipos, que estos campos son opcionales al navegar hacia esta
+// ruta (ej. <Link to="/dashboard/campaigns"> sin pasar `search`); .catch()
+// de más protege contra valores inválidos en la URL (ej. ?page=abc).
 const adsSearchSchema = z.object({
-  page: z.coerce.number().int().min(1).catch(1),
-  search: z.string().catch(''),
-  type: z.enum(['all', 'banner', 'interstitial']).catch('all'),
-  status: z.enum(['all', 'active', 'inactive']).catch('all'),
+  page: z.coerce.number().int().min(1).default(1).catch(1),
+  search: z.string().default('').catch(''),
+  type: z.enum(['all', 'banner', 'interstitial']).default('all').catch('all'),
+  status: z.enum(['all', 'active', 'inactive']).default('all').catch('all'),
 })
 
 export const Route = createFileRoute('/dashboard/campaigns/')({
-  validateSearch: (search) => adsSearchSchema.parse(search),
+  validateSearch: adsSearchSchema,
   component: AdsPage,
 })
 

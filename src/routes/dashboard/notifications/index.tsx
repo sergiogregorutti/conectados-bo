@@ -38,16 +38,24 @@ import type {
 
 // Filtros y paginación viven en la URL: si no, al navegar al detalle de un
 // envío y volver con "atrás", se pierden la página y los filtros.
+// .default() (no solo .catch()) es necesario para que TanStack Router sepa,
+// a nivel de tipos, que estos campos son opcionales al navegar hacia esta
+// ruta (ej. <Link to="/dashboard/notifications"> sin pasar `search`);
+// .catch() de más protege contra valores inválidos en la URL (ej. ?page=abc).
 const notificationsSearchSchema = z.object({
-  page: z.coerce.number().int().min(1).catch(1),
+  page: z.coerce.number().int().min(1).default(1).catch(1),
   status: z
     .enum(['all', 'SCHEDULED', 'SENDING', 'SENT', 'CANCELED', 'FAILED'])
+    .default('all')
     .catch('all'),
-  type: z.enum(['all', 'ANNOUNCEMENT', 'REMINDER', 'DEBATE_POST']).catch('all'),
+  type: z
+    .enum(['all', 'ANNOUNCEMENT', 'REMINDER', 'DEBATE_POST'])
+    .default('all')
+    .catch('all'),
 })
 
 export const Route = createFileRoute('/dashboard/notifications/')({
-  validateSearch: (search) => notificationsSearchSchema.parse(search),
+  validateSearch: notificationsSearchSchema,
   component: NotificationsPage,
 })
 
