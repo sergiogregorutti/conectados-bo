@@ -85,14 +85,14 @@ npm run lint     # ESLint
 
 ## Variables de Entorno
 
-| Variable | Descripción |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | URL del proyecto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Clave pública de Supabase |
-| `VITE_API_URL` | URL base del API (ej: `http://localhost:3000/api`) |
+| Variable                 | Descripción                                        |
+| ------------------------ | -------------------------------------------------- |
+| `VITE_SUPABASE_URL`      | URL del proyecto Supabase                          |
+| `VITE_SUPABASE_ANON_KEY` | Clave pública de Supabase                          |
+| `VITE_API_URL`           | URL base del API (ej: `http://localhost:3000/api`) |
 
 ## Notas
 
 - El API usa el mismo Supabase para auth, el token JWT es válido en ambos
 - Las rutas usan `beforeLoad` de TanStack Router para protección
-- El interceptor de axios maneja 401 automáticamente (logout + redirect)
+- El interceptor de axios maneja 401 automáticamente (logout + redirect).
