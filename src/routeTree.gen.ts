@@ -13,9 +13,12 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
+import { Route as DashboardNotificationsIndexRouteImport } from './routes/dashboard/notifications/index'
 import { Route as DashboardDebateIndexRouteImport } from './routes/dashboard/debate/index'
 import { Route as DashboardCampaignsIndexRouteImport } from './routes/dashboard/campaigns/index'
 import { Route as DashboardUsersUserIdRouteImport } from './routes/dashboard/users/$userId'
+import { Route as DashboardNotificationsNewRouteImport } from './routes/dashboard/notifications/new'
+import { Route as DashboardNotificationsNotificationIdRouteImport } from './routes/dashboard/notifications/$notificationId'
 import { Route as DashboardDebateNewRouteImport } from './routes/dashboard/debate/new'
 import { Route as DashboardDebateCommentsRouteImport } from './routes/dashboard/debate/comments'
 import { Route as DashboardDebatePostIdRouteImport } from './routes/dashboard/debate/$postId'
@@ -42,6 +45,12 @@ const DashboardUsersIndexRoute = DashboardUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardNotificationsIndexRoute =
+  DashboardNotificationsIndexRouteImport.update({
+    id: '/notifications/',
+    path: '/notifications/',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardDebateIndexRoute = DashboardDebateIndexRouteImport.update({
   id: '/debate/',
   path: '/debate/',
@@ -57,6 +66,18 @@ const DashboardUsersUserIdRoute = DashboardUsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardNotificationsNewRoute =
+  DashboardNotificationsNewRouteImport.update({
+    id: '/notifications/new',
+    path: '/notifications/new',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardNotificationsNotificationIdRoute =
+  DashboardNotificationsNotificationIdRouteImport.update({
+    id: '/notifications/$notificationId',
+    path: '/notifications/$notificationId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardDebateNewRoute = DashboardDebateNewRouteImport.update({
   id: '/debate/new',
   path: '/debate/new',
@@ -92,9 +113,12 @@ export interface FileRoutesByFullPath {
   '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/comments': typeof DashboardDebateCommentsRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
+  '/dashboard/notifications/$notificationId': typeof DashboardNotificationsNotificationIdRoute
+  '/dashboard/notifications/new': typeof DashboardNotificationsNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/campaigns/': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
+  '/dashboard/notifications/': typeof DashboardNotificationsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -105,9 +129,12 @@ export interface FileRoutesByTo {
   '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/comments': typeof DashboardDebateCommentsRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
+  '/dashboard/notifications/$notificationId': typeof DashboardNotificationsNotificationIdRoute
+  '/dashboard/notifications/new': typeof DashboardNotificationsNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/campaigns': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate': typeof DashboardDebateIndexRoute
+  '/dashboard/notifications': typeof DashboardNotificationsIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesById {
@@ -120,9 +147,12 @@ export interface FileRoutesById {
   '/dashboard/debate/$postId': typeof DashboardDebatePostIdRoute
   '/dashboard/debate/comments': typeof DashboardDebateCommentsRoute
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
+  '/dashboard/notifications/$notificationId': typeof DashboardNotificationsNotificationIdRoute
+  '/dashboard/notifications/new': typeof DashboardNotificationsNewRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/campaigns/': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
+  '/dashboard/notifications/': typeof DashboardNotificationsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRouteTypes {
@@ -136,9 +166,12 @@ export interface FileRouteTypes {
     | '/dashboard/debate/$postId'
     | '/dashboard/debate/comments'
     | '/dashboard/debate/new'
+    | '/dashboard/notifications/$notificationId'
+    | '/dashboard/notifications/new'
     | '/dashboard/users/$userId'
     | '/dashboard/campaigns/'
     | '/dashboard/debate/'
+    | '/dashboard/notifications/'
     | '/dashboard/users/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -149,9 +182,12 @@ export interface FileRouteTypes {
     | '/dashboard/debate/$postId'
     | '/dashboard/debate/comments'
     | '/dashboard/debate/new'
+    | '/dashboard/notifications/$notificationId'
+    | '/dashboard/notifications/new'
     | '/dashboard/users/$userId'
     | '/dashboard/campaigns'
     | '/dashboard/debate'
+    | '/dashboard/notifications'
     | '/dashboard/users'
   id:
     | '__root__'
@@ -163,9 +199,12 @@ export interface FileRouteTypes {
     | '/dashboard/debate/$postId'
     | '/dashboard/debate/comments'
     | '/dashboard/debate/new'
+    | '/dashboard/notifications/$notificationId'
+    | '/dashboard/notifications/new'
     | '/dashboard/users/$userId'
     | '/dashboard/campaigns/'
     | '/dashboard/debate/'
+    | '/dashboard/notifications/'
     | '/dashboard/users/'
   fileRoutesById: FileRoutesById
 }
@@ -204,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUsersIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/notifications/': {
+      id: '/dashboard/notifications/'
+      path: '/notifications'
+      fullPath: '/dashboard/notifications/'
+      preLoaderRoute: typeof DashboardNotificationsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/debate/': {
       id: '/dashboard/debate/'
       path: '/debate'
@@ -223,6 +269,20 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/dashboard/users/$userId'
       preLoaderRoute: typeof DashboardUsersUserIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/notifications/new': {
+      id: '/dashboard/notifications/new'
+      path: '/notifications/new'
+      fullPath: '/dashboard/notifications/new'
+      preLoaderRoute: typeof DashboardNotificationsNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/notifications/$notificationId': {
+      id: '/dashboard/notifications/$notificationId'
+      path: '/notifications/$notificationId'
+      fullPath: '/dashboard/notifications/$notificationId'
+      preLoaderRoute: typeof DashboardNotificationsNotificationIdRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/debate/new': {
@@ -270,9 +330,12 @@ interface DashboardRouteChildren {
   DashboardDebatePostIdRoute: typeof DashboardDebatePostIdRoute
   DashboardDebateCommentsRoute: typeof DashboardDebateCommentsRoute
   DashboardDebateNewRoute: typeof DashboardDebateNewRoute
+  DashboardNotificationsNotificationIdRoute: typeof DashboardNotificationsNotificationIdRoute
+  DashboardNotificationsNewRoute: typeof DashboardNotificationsNewRoute
   DashboardUsersUserIdRoute: typeof DashboardUsersUserIdRoute
   DashboardCampaignsIndexRoute: typeof DashboardCampaignsIndexRoute
   DashboardDebateIndexRoute: typeof DashboardDebateIndexRoute
+  DashboardNotificationsIndexRoute: typeof DashboardNotificationsIndexRoute
   DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
 }
 
@@ -283,9 +346,13 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDebatePostIdRoute: DashboardDebatePostIdRoute,
   DashboardDebateCommentsRoute: DashboardDebateCommentsRoute,
   DashboardDebateNewRoute: DashboardDebateNewRoute,
+  DashboardNotificationsNotificationIdRoute:
+    DashboardNotificationsNotificationIdRoute,
+  DashboardNotificationsNewRoute: DashboardNotificationsNewRoute,
   DashboardUsersUserIdRoute: DashboardUsersUserIdRoute,
   DashboardCampaignsIndexRoute: DashboardCampaignsIndexRoute,
   DashboardDebateIndexRoute: DashboardDebateIndexRoute,
+  DashboardNotificationsIndexRoute: DashboardNotificationsIndexRoute,
   DashboardUsersIndexRoute: DashboardUsersIndexRoute,
 }
 

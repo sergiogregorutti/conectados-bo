@@ -17,6 +17,8 @@ export interface DebatePost {
   description: string
   publishedAt: string // ISO date
   isActive: boolean
+  notifyOnPublish: boolean // check "avisar al publicar" elegido por el admin
+  notifiedAt: string | null // ya se avisó una vez; no se vuelve a avisar
   createdAt: string
   updatedAt: string
   _count?: {
@@ -31,12 +33,16 @@ export interface CreatePostDto {
   description: string
   files: File[] // 1 a MAX_POST_IMAGES, en el orden final de publicación
   publishedAt?: string // ISO date, opcional (default: ahora)
+  notify?: boolean // avisar a los usuarios al publicarse (default false)
 }
 
 export interface UpdatePostDto {
   description?: string
   publishedAt?: string
   isActive?: boolean
+  // Solo válido mientras el post no es visible (borrador o programado a
+  // futuro) y no tiene notifiedAt. Si no, el backend responde 400.
+  notify?: boolean
 }
 
 export interface PostsFilters {

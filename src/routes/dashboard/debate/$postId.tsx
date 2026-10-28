@@ -21,6 +21,7 @@ function EditPostPage() {
           description: data.description,
           publishedAt: data.publishedAt,
           isActive: data.isActive,
+          notify: data.notify,
         },
       })
       navigate({ to: '/dashboard/debate' })
