@@ -289,8 +289,9 @@ export function PostForm({ defaultValues, onSubmit, isLoading }: PostFormProps) 
           <span>
             Avisar a los usuarios al publicar
             <span className="block text-xs text-muted-foreground">
-              Envía una notificación (push y web) cuando el post se vuelva visible. Si lo
-              guardás como borrador ahora, se te va a volver a preguntar cuando lo actives.
+              Envía una notificación (push y web) en el próximo ciclo de envío (1 vez por día)
+              después de que el post se vuelva visible. Si lo guardás como borrador ahora, se te
+              va a volver a preguntar cuando lo actives.
             </span>
           </span>
         </label>

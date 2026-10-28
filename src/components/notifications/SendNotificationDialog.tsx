@@ -48,6 +48,8 @@ export function SendNotificationDialog({ payload, open, onOpenChange, onSent }: 
     }
   }
 
+  // El despacho corre 1 vez por día (09:00 ART), no por minuto: con o sin
+  // scheduledAt, la salida real es la corrida diaria posterior a esa fecha.
   const scheduledLabel = payload?.scheduledAt
     ? new Date(payload.scheduledAt).toLocaleString('es-AR', {
         day: '2-digit',
@@ -56,7 +58,7 @@ export function SendNotificationDialog({ payload, open, onOpenChange, onSent }: 
         hour: '2-digit',
         minute: '2-digit',
       })
-    : 'ahora (dentro del próximo minuto)'
+    : 'el próximo ciclo de envío'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -65,6 +67,13 @@ export function SendNotificationDialog({ payload, open, onOpenChange, onSent }: 
           <DialogTitle>Confirmar envío</DialogTitle>
           <DialogDescription>
             Se va a enviar <strong>{scheduledLabel}</strong>.
+            {payload?.scheduledAt && (
+              <>
+                {' '}
+                El despacho corre 1 vez por día (09:00 ART): sale en la corrida posterior a esa
+                fecha, no exactamente a esa hora.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 

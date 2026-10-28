@@ -198,7 +198,8 @@ export function NotificationForm({ onReview }: Props) {
         )}
         {!schedule && (
           <p className="text-sm text-muted-foreground">
-            Sin programar, sale dentro del próximo minuto.
+            Sin programar, sale en el próximo ciclo de envío (el despacho corre 1 vez por día,
+            09:00 ART).
           </p>
         )}
       </div>
