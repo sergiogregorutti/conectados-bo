@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
-import { ChevronLeft, ChevronRight, Plus, RefreshCw, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, HelpCircle, Plus, RefreshCw, X } from 'lucide-react'
 import { useCancelNotification, useNotifications } from '@/hooks/useNotifications'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   Select,
   SelectContent,
@@ -73,7 +74,7 @@ function NotificationsPage() {
   const { page } = search
   const statusFilter: NotificationsFilterStatus = search.status
   const typeFilter: NotificationsFilterType = search.type
-  const [cancelId, setCancelId] = useState<string | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<AdminNotification | null>(null)
 
   const { data, isLoading, refetch, isFetching } = useNotifications({
     page,
@@ -100,8 +101,8 @@ function NotificationsPage() {
   }
 
   const onConfirmCancel = () => {
-    if (!cancelId) return
-    cancelMutation.mutate(cancelId, { onSuccess: () => setCancelId(null) })
+    if (!cancelTarget) return
+    cancelMutation.mutate(cancelTarget.id, { onSuccess: () => setCancelTarget(null) })
   }
 
   return (
@@ -159,8 +160,34 @@ function NotificationsPage() {
               <TableHead>Tipo</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Canales</TableHead>
-              <TableHead className="text-right">Destinatarios</TableHead>
-              <TableHead className="text-right">Entregados</TableHead>
+              <TableHead className="text-right">
+                <span className="inline-flex items-center justify-end gap-1">
+                  Destinatarios
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Estimado al crear el envío (filtro de audiencia aplicado al momento de
+                      enviar, puede variar)
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              </TableHead>
+              <TableHead className="text-right">
+                <span className="inline-flex items-center justify-end gap-1">
+                  Entregados
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      El proveedor (Expo/web push) confirmó el envío, no que el usuario lo haya
+                      visto
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              </TableHead>
               <TableHead>Programado</TableHead>
               <TableHead className="w-[60px] text-right">Acciones</TableHead>
             </TableRow>
@@ -180,7 +207,11 @@ function NotificationsPage() {
               </TableRow>
             ) : (
               notifications.map((n) => (
-                <NotificationRow key={n.id} notification={n} onCancel={() => setCancelId(n.id)} />
+                <NotificationRow
+                  key={n.id}
+                  notification={n}
+                  onCancel={() => setCancelTarget(n)}
+                />
               ))
             )}
           </TableBody>
@@ -220,12 +251,15 @@ function NotificationsPage() {
         </div>
       )}
 
-      <AlertDialog open={!!cancelId} onOpenChange={(open) => !open && setCancelId(null)}>
+      <AlertDialog open={!!cancelTarget} onOpenChange={(open) => !open && setCancelTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Cancelar este envío?</AlertDialogTitle>
             <AlertDialogDescription>
-              El envío programado no va a salir. Esta acción no se puede deshacer.
+              {cancelTarget?.status === 'SENDING'
+                ? 'Se dejará de enviar a quienes faltan. A quienes ya les llegó no se puede quitar.'
+                : 'El envío programado no va a salir.'}{' '}
+              Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -277,7 +311,7 @@ function NotificationRow({
         {formatDateTime(notification.scheduledAt)}
       </TableCell>
       <TableCell className="text-right">
-        {notification.status === 'SCHEDULED' && (
+        {(notification.status === 'SCHEDULED' || notification.status === 'SENDING') && (
           <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancelar envío">
             <X className="h-4 w-4 text-destructive" />
           </Button>

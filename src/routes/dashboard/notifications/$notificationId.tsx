@@ -5,6 +5,7 @@ import { ArrowLeft, X } from 'lucide-react'
 import { useCancelNotification, useNotification } from '@/hooks/useNotifications'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   AlertDialog,
@@ -16,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import type { AdminNotificationDetail } from '@/types/notification'
 
 export const Route = createFileRoute('/dashboard/notifications/$notificationId')({
   component: NotificationDetailPage,
@@ -64,6 +66,8 @@ function NotificationDetailPage() {
     cancelMutation.mutate(data.id, { onSuccess: () => setCancelOpen(false) })
   }
 
+  const canCancel = data.status === 'SCHEDULED' || data.status === 'SENDING'
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-2">
@@ -86,7 +90,7 @@ function NotificationDetailPage() {
               {TYPE_LABELS[data.type] ?? data.type} · {data.channels.join(' · ')}
             </p>
           </div>
-          {data.status === 'SCHEDULED' && (
+          {canCancel && (
             <Button variant="destructive" size="sm" onClick={() => setCancelOpen(true)}>
               <X className="mr-2 h-4 w-4" />
               Cancelar envío
@@ -95,6 +99,8 @@ function NotificationDetailPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm">{data.body}</p>
+
+          <SendProgress notification={data} />
 
           <div className="grid gap-2 text-sm sm:grid-cols-2">
             <InfoLine label="Programado" value={formatDateTime(data.scheduledAt)} />
@@ -106,6 +112,10 @@ function NotificationDetailPage() {
             <InfoLine label="Fallidos" value={String(data.failedCount)} />
             <InfoLine label="Admin" value={data.adminId} mono />
           </div>
+          <p className="text-xs text-muted-foreground">
+            Destinatarios es una estimación tomada al crear el envío. Entregados cuenta las
+            respuestas OK de Expo/web push, no que el usuario haya visto la notificación.
+          </p>
 
           <div>
             <p className="mb-2 text-sm font-medium">Audiencia</p>
@@ -125,7 +135,10 @@ function NotificationDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Cancelar este envío?</AlertDialogTitle>
             <AlertDialogDescription>
-              El envío programado no va a salir. Esta acción no se puede deshacer.
+              {data.status === 'SENDING'
+                ? 'Se dejará de enviar a quienes faltan. A quienes ya les llegó no se puede quitar.'
+                : 'El envío programado no va a salir.'}{' '}
+              Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -171,4 +184,34 @@ function formatDateTime(date: string | null) {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+function formatNumber(num: number) {
+  return new Intl.NumberFormat('es-AR').format(num)
+}
+
+// Se muestra mientras se está enviando (para ver cómo va) y cuando se
+// canceló (para ver hasta dónde llegó antes de cortar).
+function SendProgress({ notification }: { notification: AdminNotificationDetail }) {
+  const { status, recipientsCount, deliveredCount, failedCount } = notification
+  if ((status !== 'SENDING' && status !== 'CANCELED') || recipientsCount === 0) return null
+
+  const processed = deliveredCount + failedCount
+  const percentage = Math.min(100, Math.round((processed / recipientsCount) * 100))
+
+  return (
+    <div className="space-y-2 rounded-md border p-3">
+      <div className="flex items-center justify-between text-sm">
+        <span>
+          {status === 'CANCELED' ? 'Se canceló: se envió a ' : 'Se envió a '}
+          <strong>{formatNumber(processed)}</strong> de{' '}
+          <strong>{formatNumber(recipientsCount)}</strong> personas ({percentage}%)
+        </span>
+      </div>
+      <Progress value={percentage} />
+      <p className="text-xs text-muted-foreground">
+        Les llegó: {formatNumber(deliveredCount)} · No se pudo enviar: {formatNumber(failedCount)}
+      </p>
+    </div>
+  )
 }
