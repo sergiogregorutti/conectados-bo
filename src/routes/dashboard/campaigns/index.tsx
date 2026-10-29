@@ -1,7 +1,16 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
-import { Plus, Pencil, Trash2, ExternalLink, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+  Video,
+} from 'lucide-react'
 import { useAds, useDeleteAd, useToggleAd } from '@/hooks/useAds'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -213,11 +222,17 @@ function AdsPage() {
                 <TableRow key={ad.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <img
-                        src={ad.mediaUrl}
-                        alt={ad.title}
-                        className="h-10 w-10 rounded object-cover"
-                      />
+                      {ad.mediaType === 'video' ? (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-muted">
+                          <Video className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      ) : (
+                        <img
+                          src={ad.mediaUrl}
+                          alt={ad.title}
+                          className="h-10 w-10 shrink-0 rounded object-cover"
+                        />
+                      )}
                       <div>
                         <p className="font-medium">{ad.title}</p>
                         <p className="text-xs text-muted-foreground">
