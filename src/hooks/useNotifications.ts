@@ -66,6 +66,17 @@ export function useTestNotification() {
   return useMutation({
     mutationFn: (data: TestNotificationDto) => notificationsService.test(data),
     onSuccess: (result) => {
+      if ('results' in result) {
+        const sent = result.results.filter((r) => r.sent).length
+        const failed = result.results.length - sent
+        if (sent > 0) {
+          toast.success(`Prueba enviada a ${sent} usuario${sent === 1 ? '' : 's'}`)
+        }
+        if (failed > 0) {
+          toast.error(`No se pudo enviar a ${failed} usuario${failed === 1 ? '' : 's'}`)
+        }
+        return
+      }
       if (result.mobile || result.web) {
         toast.success('Notificación de prueba enviada a tu dispositivo')
       } else {

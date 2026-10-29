@@ -38,9 +38,21 @@ export function NotificationForm({ onReview }: Props) {
   const [schedule, setSchedule] = useState(false)
   const [scheduleDate, setScheduleDate] = useState('')
   const [scheduleTime, setScheduleTime] = useState('09:00')
+  const [testUserIds, setTestUserIds] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
 
   const testMutation = useTestNotification()
+
+  // Admin pega ids separados por coma, espacio o salto de línea (los copia
+  // con el botón nuevo del listado de Usuarios).
+  const parsedTestUserIds = Array.from(
+    new Set(
+      testUserIds
+        .split(/[\s,]+/)
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  )
 
   const toggleChannel = (channel: NotificationChannel) => {
     setChannels((prev) =>
@@ -97,8 +109,17 @@ export function NotificationForm({ onReview }: Props) {
       setFormError('Elegí al menos un canal para probar')
       return
     }
+    if (parsedTestUserIds.length > 20) {
+      setFormError('Máximo 20 usuarios para probar')
+      return
+    }
     setFormError(null)
-    testMutation.mutate({ title: title.trim(), body: body.trim(), channels })
+    testMutation.mutate({
+      title: title.trim(),
+      body: body.trim(),
+      channels,
+      userIds: parsedTestUserIds.length > 0 ? parsedTestUserIds : undefined,
+    })
   }
 
   return (
@@ -204,14 +225,47 @@ export function NotificationForm({ onReview }: Props) {
         )}
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="testUserIds">Probar en usuarios específicos (opcional)</Label>
+        <Textarea
+          id="testUserIds"
+          rows={2}
+          value={testUserIds}
+          onChange={(e) => setTestUserIds(e.target.value)}
+          placeholder="Pegá uno o más IDs de usuario (separados por coma o salto de línea)..."
+        />
+        <p className="text-xs text-muted-foreground">
+          {parsedTestUserIds.length > 0
+            ? `${parsedTestUserIds.length}/20 usuario${parsedTestUserIds.length === 1 ? '' : 's'}`
+            : 'Vacío: la prueba se envía a tu propio dispositivo. Copiá los IDs desde el listado de Usuarios.'}
+        </p>
+      </div>
+
       {formError && <p className="text-sm text-destructive">{formError}</p>}
 
       <div className="flex flex-wrap gap-4">
         <Button type="submit">Revisar y enviar</Button>
         <Button type="button" variant="outline" onClick={onTest} disabled={testMutation.isPending}>
-          {testMutation.isPending ? 'Probando...' : 'Probar en mi dispositivo'}
+          {testMutation.isPending
+            ? 'Probando...'
+            : parsedTestUserIds.length > 0
+              ? 'Probar en usuarios elegidos'
+              : 'Probar en mi dispositivo'}
         </Button>
       </div>
+
+      {testMutation.data && 'results' in testMutation.data && (
+        <ul className="space-y-1 rounded-md border p-3 text-sm">
+          {testMutation.data.results.map((r) => (
+            <li key={r.userId} className="flex items-center justify-between gap-2">
+              <span className="font-mono text-xs text-muted-foreground">{r.userId}</span>
+              <span className={r.sent ? 'text-green-500' : 'text-destructive'}>
+                {r.sent ? 'Enviado' : 'No se pudo enviar'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </form>
   )
 }

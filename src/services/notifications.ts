@@ -10,6 +10,7 @@ import type {
   NotificationsListResponse,
   TestNotificationDto,
   TestNotificationResponse,
+  TestNotificationUsersResponse,
 } from '@/types/notification'
 
 export const notificationsService = {
@@ -43,8 +44,13 @@ export const notificationsService = {
     return response.data
   },
 
-  async test(data: TestNotificationDto): Promise<TestNotificationResponse> {
-    const response = await api.post<TestNotificationResponse>('/admin/notifications/test', data)
+  async test(
+    data: TestNotificationDto,
+  ): Promise<TestNotificationResponse | TestNotificationUsersResponse> {
+    const response = await api.post<TestNotificationResponse | TestNotificationUsersResponse>(
+      '/admin/notifications/test',
+      data,
+    )
     return response.data
   },
 

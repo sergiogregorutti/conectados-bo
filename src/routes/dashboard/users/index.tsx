@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
+import { toast } from 'sonner'
 import {
   Ban,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Crown,
   MoreHorizontal,
   RefreshCw,
@@ -281,28 +283,42 @@ function UserRow({ user }: { user: User }) {
   const hasPaidSubscription =
     premiumStatus === 'active' && !!user.currentProvider && !hasManualPremium
 
+  const onCopyId = () => {
+    navigator.clipboard.writeText(user.id)
+    toast.success('ID copiado')
+  }
+
   return (
     <TableRow>
       <TableCell>
-        <Link
-          to="/dashboard/users/$userId"
-          params={{ userId: user.id }}
-          className="flex items-center gap-3 group"
-        >
-          <Avatar>
-            {user.photoUrl ? <AvatarImage src={user.photoUrl} alt={user.name ?? ''} /> : null}
-            <AvatarFallback>{initials || '?'}</AvatarFallback>
-          </Avatar>
+        <div className="flex items-center gap-3">
+          <Link to="/dashboard/users/$userId" params={{ userId: user.id }} className="shrink-0">
+            <Avatar>
+              {user.photoUrl ? <AvatarImage src={user.photoUrl} alt={user.name ?? ''} /> : null}
+              <AvatarFallback>{initials || '?'}</AvatarFallback>
+            </Avatar>
+          </Link>
           <div className="min-w-0">
-            <p className="font-medium truncate group-hover:underline">
-              {user.name ?? 'Sin nombre'}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">{user.id}</p>
+            <Link to="/dashboard/users/$userId" params={{ userId: user.id }}>
+              <p className="font-medium truncate hover:underline">{user.name ?? 'Sin nombre'}</p>
+            </Link>
+            <div className="flex items-center gap-1">
+              <p className="font-mono text-xs text-muted-foreground truncate">{user.id}</p>
+              <button
+                type="button"
+                onClick={onCopyId}
+                className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Copiar ID"
+                title="Copiar ID"
+              >
+                <Copy className="h-3 w-3" />
+              </button>
+            </div>
             {user.email && (
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             )}
           </div>
-        </Link>
+        </div>
       </TableCell>
       <TableCell>
         {premiumStatus === 'active' && (

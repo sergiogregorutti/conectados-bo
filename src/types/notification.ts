@@ -56,11 +56,24 @@ export interface TestNotificationDto {
   title: string
   body: string
   channels: NotificationChannel[]
+  userIds?: string[] // 1-20 ids únicos; sin esto, prueba en el admin logueado
 }
 
+// Sin userIds: prueba al admin logueado.
 export interface TestNotificationResponse {
   mobile: boolean
   web: boolean
+}
+
+// Con userIds: un resultado por usuario (sent:false si no existe, está
+// eliminado/deshabilitado, o no tiene ese canal activo).
+export interface TestNotificationUserResult {
+  userId: string
+  sent: boolean
+}
+
+export interface TestNotificationUsersResponse {
+  results: TestNotificationUserResult[]
 }
 
 export interface AdminNotification {
