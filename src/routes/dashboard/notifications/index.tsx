@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { ChevronLeft, ChevronRight, HelpCircle, Plus, RefreshCw, X } from 'lucide-react'
 import { useCancelNotification, useNotifications } from '@/hooks/useNotifications'
+import { formatScheduledLabel } from '@/lib/notificationSchedule'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -188,7 +189,7 @@ function NotificationsPage() {
                   </Tooltip>
                 </span>
               </TableHead>
-              <TableHead>Programado</TableHead>
+              <TableHead>Programado (ART)</TableHead>
               <TableHead className="w-[60px] text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -308,7 +309,7 @@ function NotificationRow({
       <TableCell className="text-right font-mono">{notification.recipientsCount}</TableCell>
       <TableCell className="text-right font-mono">{notification.deliveredCount}</TableCell>
       <TableCell className="text-sm text-muted-foreground">
-        {formatDateTime(notification.scheduledAt)}
+        {formatScheduledLabel(notification.scheduledAt, notification.createdAt)}
       </TableCell>
       <TableCell className="text-right">
         {(notification.status === 'SCHEDULED' || notification.status === 'SENDING') && (
@@ -330,13 +331,3 @@ function StatusBadge({ status }: { status: string }) {
   return <Badge variant="outline">{status}</Badge>
 }
 
-function formatDateTime(date: string | null) {
-  if (!date) return '—'
-  return new Date(date).toLocaleString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}

@@ -48,39 +48,41 @@
 :root {
   --radius: 0.625rem;
 
-  /* Background: #0D1521 - azul muy oscuro */
-  --background: oklch(0.13 0.02 250);
-  --foreground: oklch(0.95 0 0);
+  /* Background: azul oscuro, más levantado que el original (#0D1521) para
+     que no lea como negro puro */
+  --background: oklch(0.17 0.025 250);
+  --foreground: oklch(0.96 0 0);
 
-  /* Card: #151F2E - ligeramente más claro */
-  --card: oklch(0.17 0.025 250);
-  --card-foreground: oklch(0.95 0 0);
+  /* Card: un escalón más claro que el fondo, para que las cards/tablas se
+     distingan del page background en vez de fundirse con él */
+  --card: oklch(0.22 0.028 250);
+  --card-foreground: oklch(0.96 0 0);
 
-  --popover: oklch(0.17 0.025 250);
-  --popover-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.22 0.028 250);
+  --popover-foreground: oklch(0.96 0 0);
 
   /* Primary: #4A9FE8 - azul Conectados */
   --primary: oklch(0.67 0.14 240);
   --primary-foreground: oklch(0.98 0 0);
 
   /* Secondary: gris azulado */
-  --secondary: oklch(0.22 0.02 250);
-  --secondary-foreground: oklch(0.95 0 0);
+  --secondary: oklch(0.27 0.025 250);
+  --secondary-foreground: oklch(0.96 0 0);
 
   /* Muted */
-  --muted: oklch(0.20 0.02 250);
-  --muted-foreground: oklch(0.65 0.02 250);
+  --muted: oklch(0.25 0.025 250);
+  --muted-foreground: oklch(0.70 0.02 250);
 
   /* Accent */
-  --accent: oklch(0.22 0.02 250);
-  --accent-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.27 0.025 250);
+  --accent-foreground: oklch(0.96 0 0);
 
   /* Destructive */
   --destructive: oklch(0.60 0.20 25);
 
-  /* Borders: #2A3544 */
-  --border: oklch(0.28 0.02 250);
-  --input: oklch(0.28 0.02 250);
+  /* Borders: más visibles contra el fondo más claro */
+  --border: oklch(0.32 0.025 250);
+  --input: oklch(0.32 0.025 250);
   --ring: oklch(0.67 0.14 240);
 
   /* Charts - using brand blue variations */
@@ -90,14 +92,15 @@
   --chart-4: oklch(0.70 0.16 260);
   --chart-5: oklch(0.75 0.12 280);
 
-  /* Sidebar */
-  --sidebar: oklch(0.11 0.02 250);
-  --sidebar-foreground: oklch(0.95 0 0);
+  /* Sidebar: un toque más oscuro que el background para separar la nav del
+     contenido, sin llegar al negro casi puro de antes */
+  --sidebar: oklch(0.145 0.025 250);
+  --sidebar-foreground: oklch(0.96 0 0);
   --sidebar-primary: oklch(0.67 0.14 240);
   --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.20 0.02 250);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.25 0.02 250);
+  --sidebar-accent: oklch(0.24 0.025 250);
+  --sidebar-accent-foreground: oklch(0.96 0 0);
+  --sidebar-border: oklch(0.28 0.025 250);
   --sidebar-ring: oklch(0.67 0.14 240);
 }
 

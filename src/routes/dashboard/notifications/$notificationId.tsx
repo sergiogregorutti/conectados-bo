@@ -3,6 +3,8 @@ import { isAxiosError } from 'axios'
 import { useState } from 'react'
 import { ArrowLeft, X } from 'lucide-react'
 import { useCancelNotification, useNotification } from '@/hooks/useNotifications'
+import { formatInArgentina } from '@/lib/date'
+import { formatScheduledLabel } from '@/lib/notificationSchedule'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -103,10 +105,13 @@ function NotificationDetailPage() {
           <SendProgress notification={data} />
 
           <div className="grid gap-2 text-sm sm:grid-cols-2">
-            <InfoLine label="Programado" value={formatDateTime(data.scheduledAt)} />
-            <InfoLine label="Enviado" value={formatDateTime(data.sentAt)} />
-            <InfoLine label="Iniciado" value={formatDateTime(data.startedAt)} />
-            <InfoLine label="Creado" value={formatDateTime(data.createdAt)} />
+            <InfoLine
+              label="Programado (ART)"
+              value={formatScheduledLabel(data.scheduledAt, data.createdAt)}
+            />
+            <InfoLine label="Enviado (ART)" value={formatDateTime(data.sentAt)} />
+            <InfoLine label="Iniciado (ART)" value={formatDateTime(data.startedAt)} />
+            <InfoLine label="Creado (ART)" value={formatDateTime(data.createdAt)} />
             <InfoLine label="Destinatarios" value={String(data.recipientsCount)} />
             <InfoLine label="Entregados" value={String(data.deliveredCount)} />
             <InfoLine label="Fallidos" value={String(data.failedCount)} />
@@ -177,7 +182,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function formatDateTime(date: string | null) {
   if (!date) return '—'
-  return new Date(date).toLocaleString('es-AR', {
+  return formatInArgentina(date, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

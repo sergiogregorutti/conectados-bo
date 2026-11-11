@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useAudienceCount, useCreateNotification } from '@/hooks/useNotifications'
+import { formatInArgentina } from '@/lib/date'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -51,13 +52,13 @@ export function SendNotificationDialog({ payload, open, onOpenChange, onSent }: 
   // El despacho corre 1 vez por día (09:00 ART), no por minuto: con o sin
   // scheduledAt, la salida real es la corrida diaria posterior a esa fecha.
   const scheduledLabel = payload?.scheduledAt
-    ? new Date(payload.scheduledAt).toLocaleString('es-AR', {
+    ? `${formatInArgentina(payload.scheduledAt, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      })
+      })} (ART)`
     : 'el próximo ciclo de envío'
 
   return (

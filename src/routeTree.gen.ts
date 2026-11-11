@@ -13,10 +13,12 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
+import { Route as DashboardReportsIndexRouteImport } from './routes/dashboard/reports/index'
 import { Route as DashboardNotificationsIndexRouteImport } from './routes/dashboard/notifications/index'
 import { Route as DashboardDebateIndexRouteImport } from './routes/dashboard/debate/index'
 import { Route as DashboardCampaignsIndexRouteImport } from './routes/dashboard/campaigns/index'
 import { Route as DashboardUsersUserIdRouteImport } from './routes/dashboard/users/$userId'
+import { Route as DashboardReportsUserIdRouteImport } from './routes/dashboard/reports/$userId'
 import { Route as DashboardNotificationsNewRouteImport } from './routes/dashboard/notifications/new'
 import { Route as DashboardNotificationsNotificationIdRouteImport } from './routes/dashboard/notifications/$notificationId'
 import { Route as DashboardDebateNewRouteImport } from './routes/dashboard/debate/new'
@@ -45,6 +47,11 @@ const DashboardUsersIndexRoute = DashboardUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardReportsIndexRoute = DashboardReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardNotificationsIndexRoute =
   DashboardNotificationsIndexRouteImport.update({
     id: '/notifications/',
@@ -64,6 +71,11 @@ const DashboardCampaignsIndexRoute = DashboardCampaignsIndexRouteImport.update({
 const DashboardUsersUserIdRoute = DashboardUsersUserIdRouteImport.update({
   id: '/users/$userId',
   path: '/users/$userId',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardReportsUserIdRoute = DashboardReportsUserIdRouteImport.update({
+  id: '/reports/$userId',
+  path: '/reports/$userId',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardNotificationsNewRoute =
@@ -115,10 +127,12 @@ export interface FileRoutesByFullPath {
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/notifications/$notificationId': typeof DashboardNotificationsNotificationIdRoute
   '/dashboard/notifications/new': typeof DashboardNotificationsNewRoute
+  '/dashboard/reports/$userId': typeof DashboardReportsUserIdRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/campaigns/': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
   '/dashboard/notifications/': typeof DashboardNotificationsIndexRoute
+  '/dashboard/reports/': typeof DashboardReportsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -131,10 +145,12 @@ export interface FileRoutesByTo {
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/notifications/$notificationId': typeof DashboardNotificationsNotificationIdRoute
   '/dashboard/notifications/new': typeof DashboardNotificationsNewRoute
+  '/dashboard/reports/$userId': typeof DashboardReportsUserIdRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/campaigns': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate': typeof DashboardDebateIndexRoute
   '/dashboard/notifications': typeof DashboardNotificationsIndexRoute
+  '/dashboard/reports': typeof DashboardReportsIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesById {
@@ -149,10 +165,12 @@ export interface FileRoutesById {
   '/dashboard/debate/new': typeof DashboardDebateNewRoute
   '/dashboard/notifications/$notificationId': typeof DashboardNotificationsNotificationIdRoute
   '/dashboard/notifications/new': typeof DashboardNotificationsNewRoute
+  '/dashboard/reports/$userId': typeof DashboardReportsUserIdRoute
   '/dashboard/users/$userId': typeof DashboardUsersUserIdRoute
   '/dashboard/campaigns/': typeof DashboardCampaignsIndexRoute
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
   '/dashboard/notifications/': typeof DashboardNotificationsIndexRoute
+  '/dashboard/reports/': typeof DashboardReportsIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRouteTypes {
@@ -168,10 +186,12 @@ export interface FileRouteTypes {
     | '/dashboard/debate/new'
     | '/dashboard/notifications/$notificationId'
     | '/dashboard/notifications/new'
+    | '/dashboard/reports/$userId'
     | '/dashboard/users/$userId'
     | '/dashboard/campaigns/'
     | '/dashboard/debate/'
     | '/dashboard/notifications/'
+    | '/dashboard/reports/'
     | '/dashboard/users/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -184,10 +204,12 @@ export interface FileRouteTypes {
     | '/dashboard/debate/new'
     | '/dashboard/notifications/$notificationId'
     | '/dashboard/notifications/new'
+    | '/dashboard/reports/$userId'
     | '/dashboard/users/$userId'
     | '/dashboard/campaigns'
     | '/dashboard/debate'
     | '/dashboard/notifications'
+    | '/dashboard/reports'
     | '/dashboard/users'
   id:
     | '__root__'
@@ -201,10 +223,12 @@ export interface FileRouteTypes {
     | '/dashboard/debate/new'
     | '/dashboard/notifications/$notificationId'
     | '/dashboard/notifications/new'
+    | '/dashboard/reports/$userId'
     | '/dashboard/users/$userId'
     | '/dashboard/campaigns/'
     | '/dashboard/debate/'
     | '/dashboard/notifications/'
+    | '/dashboard/reports/'
     | '/dashboard/users/'
   fileRoutesById: FileRoutesById
 }
@@ -243,6 +267,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUsersIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/reports/': {
+      id: '/dashboard/reports/'
+      path: '/reports'
+      fullPath: '/dashboard/reports/'
+      preLoaderRoute: typeof DashboardReportsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/notifications/': {
       id: '/dashboard/notifications/'
       path: '/notifications'
@@ -269,6 +300,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/dashboard/users/$userId'
       preLoaderRoute: typeof DashboardUsersUserIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/reports/$userId': {
+      id: '/dashboard/reports/$userId'
+      path: '/reports/$userId'
+      fullPath: '/dashboard/reports/$userId'
+      preLoaderRoute: typeof DashboardReportsUserIdRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/notifications/new': {
@@ -332,10 +370,12 @@ interface DashboardRouteChildren {
   DashboardDebateNewRoute: typeof DashboardDebateNewRoute
   DashboardNotificationsNotificationIdRoute: typeof DashboardNotificationsNotificationIdRoute
   DashboardNotificationsNewRoute: typeof DashboardNotificationsNewRoute
+  DashboardReportsUserIdRoute: typeof DashboardReportsUserIdRoute
   DashboardUsersUserIdRoute: typeof DashboardUsersUserIdRoute
   DashboardCampaignsIndexRoute: typeof DashboardCampaignsIndexRoute
   DashboardDebateIndexRoute: typeof DashboardDebateIndexRoute
   DashboardNotificationsIndexRoute: typeof DashboardNotificationsIndexRoute
+  DashboardReportsIndexRoute: typeof DashboardReportsIndexRoute
   DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
 }
 
@@ -349,10 +389,12 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardNotificationsNotificationIdRoute:
     DashboardNotificationsNotificationIdRoute,
   DashboardNotificationsNewRoute: DashboardNotificationsNewRoute,
+  DashboardReportsUserIdRoute: DashboardReportsUserIdRoute,
   DashboardUsersUserIdRoute: DashboardUsersUserIdRoute,
   DashboardCampaignsIndexRoute: DashboardCampaignsIndexRoute,
   DashboardDebateIndexRoute: DashboardDebateIndexRoute,
   DashboardNotificationsIndexRoute: DashboardNotificationsIndexRoute,
+  DashboardReportsIndexRoute: DashboardReportsIndexRoute,
   DashboardUsersIndexRoute: DashboardUsersIndexRoute,
 }
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTestNotification } from '@/hooks/useNotifications'
-import { toIsoDate } from '@/lib/date'
+import { argentinaWallTimeToUtcIso, toIsoDate } from '@/lib/date'
 import { AudienceFilters } from '@/components/notifications/AudienceFilters'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -60,10 +60,11 @@ export function NotificationForm({ onReview }: Props) {
     )
   }
 
+  // El admin siempre elige la fecha/hora en horario Argentina (el cron
+  // despacha a las 09:00 ART), sea cual sea el huso de su navegador.
   const getScheduledAtIso = (): string | undefined => {
     if (!schedule || !scheduleDate) return undefined
-    const date = new Date(`${scheduleDate}T${scheduleTime || '00:00'}:00`)
-    return date.toISOString()
+    return argentinaWallTimeToUtcIso(scheduleDate, scheduleTime || '00:00')
   }
 
   const validate = (): string | null => {
@@ -202,19 +203,24 @@ export function NotificationForm({ onReview }: Props) {
           Programar para más adelante
         </label>
         {schedule && (
-          <div className="flex gap-2 pt-1">
-            <DatePicker
-              value={scheduleDate}
-              onChange={setScheduleDate}
-              min={toIsoDate(new Date())}
-              className="flex-1"
-            />
-            <Input
-              type="time"
-              value={scheduleTime}
-              onChange={(e) => setScheduleTime(e.target.value)}
-              className="w-28"
-            />
+          <div className="space-y-1 pt-1">
+            <div className="flex gap-2">
+              <DatePicker
+                value={scheduleDate}
+                onChange={setScheduleDate}
+                min={toIsoDate(new Date())}
+                className="flex-1"
+              />
+              <Input
+                type="time"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+                className="w-28"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Hora Argentina (ART), sin importar el huso horario de tu navegador.
+            </p>
           </div>
         )}
         {!schedule && (
