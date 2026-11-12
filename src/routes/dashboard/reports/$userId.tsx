@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { isAxiosError } from 'axios'
 import { useState } from 'react'
-import { ArrowLeft, ShieldOff, ShieldCheck, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ShieldOff, ShieldCheck, ExternalLink, Images } from 'lucide-react'
 import { useReportedUserDetail } from '@/hooks/useReports'
 import { UserStatusDialog } from '@/components/users/UserStatusDialog'
+import { UserPhotosDialog } from '@/components/users/UserPhotosDialog'
 import { DiscardReportDialog } from '@/components/reports/DiscardReportDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +22,7 @@ function ReportedUserDetailPage() {
   const { userId } = Route.useParams()
   const { data, isLoading, error } = useReportedUserDetail(userId)
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [photosOpen, setPhotosOpen] = useState(false)
   const [discardReportId, setDiscardReportId] = useState<string | null>(null)
 
   if (isLoading) {
@@ -101,6 +103,10 @@ function ReportedUserDetailPage() {
                 Ver perfil completo
               </Link>
             </Button>
+            <Button variant="outline" size="sm" onClick={() => setPhotosOpen(true)}>
+              <Images className="mr-2 h-4 w-4" />
+              Ver fotos
+            </Button>
             <Button
               variant={user.disabled ? 'default' : 'destructive'}
               size="sm"
@@ -149,6 +155,12 @@ function ReportedUserDetailPage() {
         reportId={discardReportId}
         open={!!discardReportId}
         onOpenChange={(open) => !open && setDiscardReportId(null)}
+      />
+      <UserPhotosDialog
+        userId={user.id}
+        userName={user.name}
+        open={photosOpen}
+        onOpenChange={setPhotosOpen}
       />
     </div>
   )

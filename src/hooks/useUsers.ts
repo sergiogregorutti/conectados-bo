@@ -36,6 +36,19 @@ export function useUser(id: string) {
   })
 }
 
+// Carga perezosa: solo se pide cuando el admin abre la galería (`enabled`
+// controlado por el caller), no junto al detalle de usuario/reporte. Las
+// URLs firmadas que devuelve la API duran 1h; staleTime bien por debajo para
+// no mostrar una URL vencida si el admin vuelve a abrir el modal más tarde.
+export function useUserPhotos(id: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, 'photos'],
+    queryFn: () => usersService.getPhotos(id),
+    enabled: enabled && !!id,
+    staleTime: 10 * 60 * 1000,
+  })
+}
+
 export function useSetUserStatus() {
   const queryClient = useQueryClient()
 

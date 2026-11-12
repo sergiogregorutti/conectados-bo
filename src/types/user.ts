@@ -75,6 +75,18 @@ export interface PremiumActionResponse {
   premiumUntil: string | null
 }
 
+export interface UserPhoto {
+  id: string
+  url: string | null // firmada; null solo si falló la firma de esa foto puntual
+  thumbnailUrl: string | null // null si la foto no tiene thumbnail
+  isMain: boolean
+  order: number
+}
+
+export interface UserPhotosResponse {
+  photos: UserPhoto[] // orden asc, máx 6
+}
+
 export interface UserDetail extends User {
   subscriptions: Subscription[]
   couponRedemptions: CouponRedemption[]

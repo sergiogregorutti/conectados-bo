@@ -4,6 +4,7 @@ import type {
   PremiumActionResponse,
   RevokePremiumDto,
   UserDetail,
+  UserPhotosResponse,
   UsersFilters,
   UsersListResponse,
 } from '@/types/user'
@@ -51,6 +52,11 @@ export const usersService = {
 
   async revokePremium(id: string, data: RevokePremiumDto): Promise<PremiumActionResponse> {
     const response = await api.post<PremiumActionResponse>(`/admin/users/${id}/premium/revoke`, data)
+    return response.data
+  },
+
+  async getPhotos(id: string): Promise<UserPhotosResponse> {
+    const response = await api.get<UserPhotosResponse>(`/admin/users/${id}/photos`)
     return response.data
   },
 }

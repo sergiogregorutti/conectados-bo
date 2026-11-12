@@ -7,6 +7,7 @@ import {
   Calendar,
   CheckCircle2,
   Crown,
+  Images,
   ShieldCheck,
   ShieldOff,
   Ticket,
@@ -17,6 +18,7 @@ import { getPremiumStatus } from '@/lib/premium'
 import { UserStatusDialog } from '@/components/users/UserStatusDialog'
 import { GrantPremiumDialog } from '@/components/users/GrantPremiumDialog'
 import { RevokePremiumDialog } from '@/components/users/RevokePremiumDialog'
+import { UserPhotosDialog } from '@/components/users/UserPhotosDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -112,6 +114,7 @@ function UserHeader({ user }: { user: UserDetail }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [grantOpen, setGrantOpen] = useState(false)
   const [revokeOpen, setRevokeOpen] = useState(false)
+  const [photosOpen, setPhotosOpen] = useState(false)
   const initials = (user.name ?? '?')
     .split(' ')
     .map((part) => part[0])
@@ -174,6 +177,10 @@ function UserHeader({ user }: { user: UserDetail }) {
           )}
         </div>
         <div className="flex w-full flex-wrap gap-2 md:w-auto md:ml-auto">
+          <Button variant="outline" onClick={() => setPhotosOpen(true)}>
+            <Images className="mr-2 h-4 w-4" />
+            Ver fotos
+          </Button>
           {!hasPaidSubscription && (
             <Button variant="outline" onClick={() => setGrantOpen(true)}>
               <Crown className="mr-2 h-4 w-4" />
@@ -217,6 +224,12 @@ function UserHeader({ user }: { user: UserDetail }) {
         userName={user.name}
         open={revokeOpen}
         onOpenChange={setRevokeOpen}
+      />
+      <UserPhotosDialog
+        userId={user.id}
+        userName={user.name}
+        open={photosOpen}
+        onOpenChange={setPhotosOpen}
       />
     </Card>
   )
