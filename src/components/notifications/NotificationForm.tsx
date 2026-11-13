@@ -24,6 +24,11 @@ import type {
 
 const TITLE_MAX = 65
 const BODY_MAX = 178
+// iOS/Android no muestran el texto completo en la notificación: lo cortan a
+// ~4 líneas en pantalla, que varía según dispositivo, tamaño de letra y
+// emojis. No hay un número que garantice que nunca se corte, pero arriba de
+// ~100 caracteres empieza a ser común que se vea cortado con "...".
+const BODY_SAFE_LIMIT = 100
 
 interface Props {
   onReview: (payload: CreateNotificationDto) => void
@@ -136,11 +141,22 @@ export function NotificationForm({ onReview }: Props) {
             <SelectItem value="REMINDER">Recordatorio</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-sm text-muted-foreground">
-          {type === 'ANNOUNCEMENT'
-            ? 'Respeta la preferencia "Novedades" del usuario.'
-            : 'Respeta la preferencia "Recordatorios" del usuario.'}
-        </p>
+        <div className="space-y-2 rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+          <p>
+            <strong className="text-foreground">Novedad / mensaje:</strong> para anuncios
+            generales del equipo. Ej: "Lanzamos una función nueva", "Hay una promo esta semana".
+          </p>
+          <p>
+            <strong className="text-foreground">Recordatorio:</strong> para avisarle al usuario
+            algo pendiente sobre su propia cuenta. Ej: "Te falta terminar tu perfil", "Tenés
+            mensajes sin leer".
+          </p>
+          <p className="text-xs">
+            Cada usuario puede desactivar novedades y recordatorios por separado en su
+            configuración. Si elegís el tipo que no corresponde al mensaje, puede llegarle a
+            menos gente de la esperada.
+          </p>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -167,8 +183,17 @@ export function NotificationForm({ onReview }: Props) {
           maxLength={BODY_MAX}
           placeholder="Texto del mensaje..."
         />
-        <p className="text-xs text-muted-foreground text-right">
+        <p className="text-xs text-muted-foreground">
+          El celular suele cortar el texto en pantalla a partir de los ~{BODY_SAFE_LIMIT}{' '}
+          caracteres (varía según el dispositivo). Poné lo más importante al principio.
+        </p>
+        <p
+          className={`text-xs text-right ${
+            body.length > BODY_SAFE_LIMIT ? 'text-amber-500' : 'text-muted-foreground'
+          }`}
+        >
           {body.length}/{BODY_MAX}
+          {body.length > BODY_SAFE_LIMIT && ' · puede verse cortado en pantalla'}
         </p>
       </div>
 

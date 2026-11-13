@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { usersService, type UserStatusAction } from '@/services/users'
 import { getErrorMessage } from '@/lib/errors'
-import type { GrantPremiumDto, RevokePremiumDto, UsersFilters } from '@/types/user'
+import type { DeleteUserPhotoDto, GrantPremiumDto, RevokePremiumDto, UsersFilters } from '@/types/user'
 
 const QUERY_KEY = 'users'
 
@@ -99,6 +99,33 @@ export function useRevokePremium() {
     },
     onError: (error) => {
       toast.error(getPremiumErrorMessage(error, 'No se pudo cancelar el premium manual'))
+    },
+  })
+}
+
+export function useDeleteUserPhoto() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      photoId,
+      data,
+    }: {
+      id: string
+      photoId: string
+      data: DeleteUserPhotoDto
+    }) => usersService.deletePhoto(id, photoId, data),
+    onSuccess: (_, { id }) => {
+      // Invalida ['users', id] como prefijo: cubre tanto el detalle de
+      // usuario (moderationLog nuevo) como ['users', id, 'photos'] (la
+      // galería, usada igual en el detalle de Reporte).
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] })
+      toast.success('Foto eliminada correctamente')
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, 'No se pudo eliminar la foto'))
     },
   })
 }

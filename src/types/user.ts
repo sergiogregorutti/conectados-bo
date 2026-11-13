@@ -54,7 +54,7 @@ export interface CouponRedemption {
 }
 
 export interface ModerationLogEntry {
-  action: 'DISABLE' | 'ENABLE' | 'GRANT_PREMIUM' | 'REVOKE_PREMIUM'
+  action: 'DISABLE' | 'ENABLE' | 'GRANT_PREMIUM' | 'REVOKE_PREMIUM' | 'DELETE_PHOTO'
   adminId: string
   reason: string | null
   createdAt: string
@@ -85,6 +85,10 @@ export interface UserPhoto {
 
 export interface UserPhotosResponse {
   photos: UserPhoto[] // orden asc, máx 6
+}
+
+export interface DeleteUserPhotoDto {
+  reason: string // obligatorio, 1-500 chars
 }
 
 export interface UserDetail extends User {

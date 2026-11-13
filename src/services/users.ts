@@ -1,5 +1,6 @@
 import { api } from '@/lib/axios'
 import type {
+  DeleteUserPhotoDto,
   GrantPremiumDto,
   PremiumActionResponse,
   RevokePremiumDto,
@@ -58,5 +59,9 @@ export const usersService = {
   async getPhotos(id: string): Promise<UserPhotosResponse> {
     const response = await api.get<UserPhotosResponse>(`/admin/users/${id}/photos`)
     return response.data
+  },
+
+  async deletePhoto(id: string, photoId: string, data: DeleteUserPhotoDto): Promise<void> {
+    await api.delete(`/admin/users/${id}/photos/${photoId}`, { data })
   },
 }

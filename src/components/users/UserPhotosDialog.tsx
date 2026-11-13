@@ -1,6 +1,8 @@
-import { ImageOff } from 'lucide-react'
+import { useState } from 'react'
+import { ImageOff, Trash2 } from 'lucide-react'
 import { useUserPhotos } from '@/hooks/useUsers'
 import { Badge } from '@/components/ui/badge'
+import { DeleteUserPhotoDialog } from '@/components/users/DeleteUserPhotoDialog'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +23,7 @@ export function UserPhotosDialog({ userId, userName, open, onOpenChange }: Props
   // demanda), no junto al detalle de usuario o de reporte.
   const { data, isLoading, isError } = useUserPhotos(userId, open)
   const displayName = userName?.trim() || 'este usuario'
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,7 +55,7 @@ export function UserPhotosDialog({ userId, userName, open, onOpenChange }: Props
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {data.photos.map((photo) => (
               <div key={photo.id} className="space-y-1">
-                <div className="relative aspect-square overflow-hidden rounded-md border bg-muted">
+                <div className="group relative aspect-square overflow-hidden rounded-md border bg-muted">
                   {photo.url ? (
                     <a href={photo.url} target="_blank" rel="noopener noreferrer">
                       <img
@@ -69,12 +72,29 @@ export function UserPhotosDialog({ userId, userName, open, onOpenChange }: Props
                   {photo.isMain && (
                     <Badge className="absolute left-1 top-1 text-[10px]">Principal</Badge>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTargetId(photo.id)}
+                    className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity hover:bg-destructive group-hover:opacity-100 focus-visible:opacity-100"
+                    aria-label="Eliminar foto"
+                    title="Eliminar foto"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </DialogContent>
+
+      <DeleteUserPhotoDialog
+        userId={userId}
+        userName={userName}
+        photoId={deleteTargetId}
+        open={!!deleteTargetId}
+        onOpenChange={(photoDialogOpen) => !photoDialogOpen && setDeleteTargetId(null)}
+      />
     </Dialog>
   )
 }
