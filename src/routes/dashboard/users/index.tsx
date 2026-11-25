@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import {
@@ -53,6 +53,18 @@ import type {
 const ITEMS_PER_PAGE = 20
 type PremiumFilter = 'all' | 'premium' | 'free'
 
+// GET /admin/users?search= trata cualquier texto con "@" como búsqueda de
+// email EXACTA (resuelve por índice en auth.users); sin "@" busca por nombre
+// como siempre. No hay búsqueda parcial por email (un LIKE ahí recorrería
+// toda la tabla), así que mientras el "@" esté incompleto no conviene
+// disparar la request: va a devolver vacío en cada tecla.
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isIncompleteEmail(value: string) {
+  const trimmed = value.trim()
+  return trimmed.includes('@') && !EMAIL_REGEX.test(trimmed)
+}
+
 // Filtros y paginación viven en la URL (no en useState): si no, al navegar a
 // otra pantalla (ej. el detalle de un user) y volver con el botón "atrás" del
 // navegador, se pierden la página y los filtros que tenía elegidos el admin.
@@ -84,6 +96,15 @@ function UsersPage() {
   const premiumFilter: PremiumFilter = search.premium
   const statusFilter: UserStatusFilter = search.status
 
+  // Estado local del input, separado del "search" comprometido en la URL:
+  // mientras el texto sea un email incompleto no se actualiza la URL (no se
+  // dispara la búsqueda), pero el campo tiene que seguir mostrando lo que el
+  // admin está tipeando.
+  const [searchInput, setSearchInput] = useState(search.search)
+  useEffect(() => {
+    setSearchInput(search.search)
+  }, [search.search])
+
   const { data, isLoading, refetch, isFetching } = useUsers({
     page,
     limit: ITEMS_PER_PAGE,
@@ -106,6 +127,8 @@ function UsersPage() {
   // solo la paginación empuja una entrada nueva, así "atrás" avanza filtro por
   // filtro en vez de letra por letra en el buscador.
   const handleSearchChange = (value: string) => {
+    setSearchInput(value)
+    if (isIncompleteEmail(value)) return
     navigate({ search: (prev) => ({ ...prev, search: value, page: 1 }), replace: true })
   }
 
@@ -141,12 +164,18 @@ function UsersPage() {
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-4">
-        <Input
-          placeholder="Buscar por nombre..."
-          value={search.search}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="max-w-xs"
-        />
+        <div className="max-w-xs">
+          <Input
+            placeholder="Nombre o email completo"
+            value={searchInput}
+            onChange={(e) => handleSearchChange(e.target.value)}
+          />
+          {isIncompleteEmail(searchInput) && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Escribí el email completo para buscar
+            </p>
+          )}
+        </div>
         <Select value={premiumFilter} onValueChange={(v) => handlePremiumChange(v as PremiumFilter)}>
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Plan" />
