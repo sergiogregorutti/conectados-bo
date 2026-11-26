@@ -13,6 +13,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
+import { Route as DashboardStorePurchasesIndexRouteImport } from './routes/dashboard/store-purchases/index'
 import { Route as DashboardReportsIndexRouteImport } from './routes/dashboard/reports/index'
 import { Route as DashboardNotificationsIndexRouteImport } from './routes/dashboard/notifications/index'
 import { Route as DashboardDebateIndexRouteImport } from './routes/dashboard/debate/index'
@@ -47,6 +48,12 @@ const DashboardUsersIndexRoute = DashboardUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardStorePurchasesIndexRoute =
+  DashboardStorePurchasesIndexRouteImport.update({
+    id: '/store-purchases/',
+    path: '/store-purchases/',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardReportsIndexRoute = DashboardReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
   '/dashboard/notifications/': typeof DashboardNotificationsIndexRoute
   '/dashboard/reports/': typeof DashboardReportsIndexRoute
+  '/dashboard/store-purchases/': typeof DashboardStorePurchasesIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/dashboard/debate': typeof DashboardDebateIndexRoute
   '/dashboard/notifications': typeof DashboardNotificationsIndexRoute
   '/dashboard/reports': typeof DashboardReportsIndexRoute
+  '/dashboard/store-purchases': typeof DashboardStorePurchasesIndexRoute
   '/dashboard/users': typeof DashboardUsersIndexRoute
 }
 export interface FileRoutesById {
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/dashboard/debate/': typeof DashboardDebateIndexRoute
   '/dashboard/notifications/': typeof DashboardNotificationsIndexRoute
   '/dashboard/reports/': typeof DashboardReportsIndexRoute
+  '/dashboard/store-purchases/': typeof DashboardStorePurchasesIndexRoute
   '/dashboard/users/': typeof DashboardUsersIndexRoute
 }
 export interface FileRouteTypes {
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/dashboard/debate/'
     | '/dashboard/notifications/'
     | '/dashboard/reports/'
+    | '/dashboard/store-purchases/'
     | '/dashboard/users/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/dashboard/debate'
     | '/dashboard/notifications'
     | '/dashboard/reports'
+    | '/dashboard/store-purchases'
     | '/dashboard/users'
   id:
     | '__root__'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/dashboard/debate/'
     | '/dashboard/notifications/'
     | '/dashboard/reports/'
+    | '/dashboard/store-purchases/'
     | '/dashboard/users/'
   fileRoutesById: FileRoutesById
 }
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/dashboard/users/'
       preLoaderRoute: typeof DashboardUsersIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/store-purchases/': {
+      id: '/dashboard/store-purchases/'
+      path: '/store-purchases'
+      fullPath: '/dashboard/store-purchases/'
+      preLoaderRoute: typeof DashboardStorePurchasesIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/reports/': {
@@ -376,6 +396,7 @@ interface DashboardRouteChildren {
   DashboardDebateIndexRoute: typeof DashboardDebateIndexRoute
   DashboardNotificationsIndexRoute: typeof DashboardNotificationsIndexRoute
   DashboardReportsIndexRoute: typeof DashboardReportsIndexRoute
+  DashboardStorePurchasesIndexRoute: typeof DashboardStorePurchasesIndexRoute
   DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
 }
 
@@ -395,6 +416,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDebateIndexRoute: DashboardDebateIndexRoute,
   DashboardNotificationsIndexRoute: DashboardNotificationsIndexRoute,
   DashboardReportsIndexRoute: DashboardReportsIndexRoute,
+  DashboardStorePurchasesIndexRoute: DashboardStorePurchasesIndexRoute,
   DashboardUsersIndexRoute: DashboardUsersIndexRoute,
 }
 
