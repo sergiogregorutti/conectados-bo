@@ -5,16 +5,27 @@ import type { AuthContextType, UserRole } from '@/types/auth'
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-function getRoleFromToken(session: Session | null): UserRole | null {
+function readTokenPayload(session: Session | null): Record<string, unknown> | null {
   if (!session?.access_token) return null
   try {
-    const payload = JSON.parse(atob(session.access_token.split('.')[1]))
-    const role = payload.app_metadata?.role
-    if (role === 'admin') return 'ADMIN'
-    return null
+    const base64 = session.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(base64))
   } catch {
     return null
   }
+}
+
+function getRoleFromToken(session: Session | null): UserRole | null {
+  const payload = readTokenPayload(session) as { app_metadata?: { role?: string } } | null
+  if (payload?.app_metadata?.role === 'admin') return 'ADMIN'
+  return null
+}
+
+// 'aal2' = la sesión pasó el segundo factor (TOTP). La API exige aal2 en
+// /api/admin (informe de seguridad 26/11/2026, S12); acá solo decide a qué
+// pantalla mandar al admin, el control real es el de la API.
+function isMfaVerifiedToken(session: Session | null): boolean {
+  return readTokenPayload(session)?.aal === 'aal2'
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -22,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [role, setRole] = useState<UserRole | null>(null)
+  const [isMfaVerified, setIsMfaVerified] = useState(false)
 
   useEffect(() => {
     // Obtener sesión inicial
@@ -29,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
       setRole(getRoleFromToken(session))
+      setIsMfaVerified(isMfaVerifiedToken(session))
       setIsLoading(false)
     })
 
@@ -37,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
       setRole(getRoleFromToken(session))
+      setIsMfaVerified(isMfaVerifiedToken(session))
       setIsLoading(false)
     })
 
@@ -63,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!session,
     role,
     isAdmin: role === 'ADMIN',
+    isMfaVerified,
     signIn,
     signOut,
   }

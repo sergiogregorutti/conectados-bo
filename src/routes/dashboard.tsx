@@ -15,19 +15,26 @@ export const Route = createFileRoute('/dashboard')({
     if (!context.auth.isAuthenticated || !context.auth.isAdmin) {
       throw redirect({ to: '/' })
     }
+    // Admin sin segundo factor: la API rechazaría todo con MFA_REQUIRED.
+    if (!context.auth.isMfaVerified) {
+      throw redirect({ to: '/mfa' })
+    }
   },
   component: DashboardLayout,
 })
 
 function DashboardLayout() {
-  const { isLoading, isAuthenticated, isAdmin } = useAuth()
+  const { isLoading, isAuthenticated, isAdmin, isMfaVerified } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || !isAdmin)) {
+    if (isLoading) return
+    if (!isAuthenticated || !isAdmin) {
       navigate({ to: '/' })
+    } else if (!isMfaVerified) {
+      navigate({ to: '/mfa' })
     }
-  }, [isLoading, isAuthenticated, isAdmin, navigate])
+  }, [isLoading, isAuthenticated, isAdmin, isMfaVerified, navigate])
 
   if (isLoading) {
     return (
@@ -37,7 +44,7 @@ function DashboardLayout() {
     )
   }
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated || !isAdmin || !isMfaVerified) {
     return null
   }
 
