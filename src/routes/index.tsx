@@ -16,9 +16,10 @@ export const Route = createFileRoute('/')({
   beforeLoad: ({ context }) => {
     // Esperar a que la sesión se hidrate (localStorage) antes de decidir.
     if (context.auth.isLoading) return
-    // Si ya está autenticado Y es admin, redirigir al dashboard
+    // Admin con la sesión ya autenticada: al dashboard si pasó MFA, si no al
+    // segundo factor.
     if (context.auth.isAuthenticated && context.auth.isAdmin) {
-      throw redirect({ to: '/dashboard' })
+      throw redirect({ to: context.auth.isMfaVerified ? '/dashboard' : '/mfa' })
     }
   },
   component: Login,
@@ -32,6 +33,7 @@ function Login() {
     isLoading: isAuthLoading,
     isAuthenticated,
     isAdmin,
+    isMfaVerified,
   } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -41,9 +43,9 @@ function Login() {
   // Una vez que la sesión se hidrata desde localStorage, redirigir al dashboard.
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated && isAdmin) {
-      navigate({ to: '/dashboard' })
+      navigate({ to: isMfaVerified ? '/dashboard' : '/mfa' })
     }
-  }, [isAuthLoading, isAuthenticated, isAdmin, navigate])
+  }, [isAuthLoading, isAuthenticated, isAdmin, isMfaVerified, navigate])
 
   if (isAuthLoading || (isAuthenticated && isAdmin)) {
     return (
@@ -73,7 +75,8 @@ function Login() {
       return
     }
 
-    navigate({ to: '/dashboard' })
+    // Con la contraseña sola la sesión es aal1: falta el segundo factor.
+    navigate({ to: '/mfa' })
   }
 
   return (

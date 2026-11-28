@@ -35,6 +35,13 @@ api.interceptors.response.use(
       // Token expirado o inválido - cerrar sesión
       await supabase.auth.signOut()
       window.location.href = '/'
+    } else if (
+      error.response?.status === 403 &&
+      error.response?.data?.error === 'MFA_REQUIRED' &&
+      window.location.pathname !== '/mfa'
+    ) {
+      // La API exige segundo factor en /api/admin (S12).
+      window.location.href = '/mfa'
     }
     return Promise.reject(error)
   }

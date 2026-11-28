@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MfaRouteImport } from './routes/mfa'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -27,6 +28,11 @@ import { Route as DashboardDebatePostIdRouteImport } from './routes/dashboard/de
 import { Route as DashboardCampaignsNewRouteImport } from './routes/dashboard/campaigns/new'
 import { Route as DashboardCampaignsAdIdRouteImport } from './routes/dashboard/campaigns/$adId'
 
+const MfaRoute = MfaRouteImport.update({
+  id: '/mfa',
+  path: '/mfa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -119,6 +125,7 @@ const DashboardCampaignsAdIdRoute = DashboardCampaignsAdIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/mfa': typeof MfaRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/campaigns/$adId': typeof DashboardCampaignsAdIdRoute
   '/dashboard/campaigns/new': typeof DashboardCampaignsNewRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mfa': typeof MfaRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/campaigns/$adId': typeof DashboardCampaignsAdIdRoute
   '/dashboard/campaigns/new': typeof DashboardCampaignsNewRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/mfa': typeof MfaRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/campaigns/$adId': typeof DashboardCampaignsAdIdRoute
   '/dashboard/campaigns/new': typeof DashboardCampaignsNewRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/mfa'
     | '/dashboard/'
     | '/dashboard/campaigns/$adId'
     | '/dashboard/campaigns/new'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/mfa'
     | '/dashboard'
     | '/dashboard/campaigns/$adId'
     | '/dashboard/campaigns/new'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/mfa'
     | '/dashboard/'
     | '/dashboard/campaigns/$adId'
     | '/dashboard/campaigns/new'
@@ -235,10 +247,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  MfaRoute: typeof MfaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mfa': {
+      id: '/mfa'
+      path: '/mfa'
+      fullPath: '/mfa'
+      preLoaderRoute: typeof MfaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -405,6 +425,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  MfaRoute: MfaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
